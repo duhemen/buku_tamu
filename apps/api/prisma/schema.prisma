@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  RECEPTIONIST
+  SECURITY
+  VIEWER
+}
+
+enum VisitStatus {
+  WAITING
+  IN_PROGRESS
+  DONE
+  CANCELED
+}
+
+enum QueueStatus {
+  WAITING
+  CALLED
+  SERVED
+  SKIPPED
+}
+
+enum HandoverType {
+  SURAT
+  JAMINAN_TENDER
+  PAKET
+  DOKUMEN
+  LAINNYA
+}
+
+enum HandoverStatus {
+  RECEIVED
+  IN_PROGRESS
+  COMPLETED
+  RETURNED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(RECEPTIONIST)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  visits    Visit[]    @relation("OfficerVisits")
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model Guest {
+  id             String   @id @default(cuid())
+  fullName       String
+  company        String?
+  address        String?
+  nikEncrypted   String?
+  phoneEncrypted String?
+  emailEncrypted String?
+  consentAt      DateTime?
+  facePhoto      String?  @db.Text
+  faceHash       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  faceEmbeddings FaceEmbedding[]
+  visits         Visit[]
+
+  @@index([fullName])
+  @@index([faceHash])
+  @@map("guests")
+}
+
+model FaceEmbedding {
+  id           String   @id @default(cuid())
+  guestId      String
+  embedding    Bytes
+  modelVersion String
+  qualityScore Float?
+  createdAt    DateTime @default(now())
+
+  guest Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@index([guestId])
+  @@map("face_embeddings")
+}
+
+model Visit {
+  id          String      @id @default(cuid())
+  guestId     String
+  officerId   String?
+  purpose     String
+  destination String
+  notes       String?
+  status      VisitStatus @default(WAITING)
+  checkInAt   DateTime    @default(now())
+  checkOutAt  DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  guest     Guest      @relation(fields: [guestId], references: [id])
+  officer   User?      @relation("OfficerVisits", fields: [officerId], references: [id])
+  queue     Queue?
+  letters   Letter[]
+  handovers Handover[]
+  receipt   Receipt?
+
+  @@index([guestId])
+  @@index([checkInAt])
+  @@map("visits")
+}
+
+model Queue {
+  id        String      @id @default(cuid())
+  visitId   String      @unique
+  number    String
+  date      DateTime    @db.Date
+  status    QueueStatus @default(WAITING)
+  calledAt  DateTime?
+  counter   String?
+  createdAt DateTime    @default(now())
+
+  visit Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  @@unique([number, date])
+  @@index([date])
+  @@map("queues")
+}
+
+model Letter {
+  id           String   @id @default(cuid())
+  visitId      String
+  letterNumber String?
+  subject      String
+  sender       String?
+  recipient    String?
+  fileUrl      String?
+  createdAt    DateTime @default(now())
+
+  visit Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  @@index([visitId])
+  @@map("letters")
+}
+
+model Handover {
+  id          String         @id @default(cuid())
+  visitId     String
+  code        String         @unique
+  type        HandoverType
+  referenceNo String?
+  description String
+  recipient   String?
+  status      HandoverStatus @default(RECEIVED)
+  receivedAt  DateTime       @default(now())
+  completedAt DateTime?
+  notes       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  visit Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  @@index([visitId])
+  @@index([code])
+  @@map("handovers")
+}
+
+model Receipt {
+  id            String    @id @default(cuid())
+  visitId       String    @unique
+  receiptNumber String    @unique
+  printedAt     DateTime?
+  digitalUrl    String?
+  createdAt     DateTime  @default(now())
+
+  visit Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  @@map("receipts")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  ip        String?
+  userAgent String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
+
+model Setting {
+  key   String @id
+  value Json
+}

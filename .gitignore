@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+.pnp.*
+
+# Build
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+.env.production
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Prisma / DB
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
+backups/
+
+# Storage
+storage/photos/*
+storage/receipts/*
+storage/letters/*
+!storage/**/.gitkeep
+
+# Cloudflare
+cloudflared.exe
+cloudflared-windows-amd64.exe
+cloudflared-windows-amd64.msi
+cloudflared-extract/
+
+# Helper scripts (dev only)
+gen-*.ps1
+fix-*.ps1
+gaskeun-*.ps1
+setup-*.ps1
+final-*.ps1
+
+# Misc
+*.bak
+*.tmp
+*.orig
+.cache/
