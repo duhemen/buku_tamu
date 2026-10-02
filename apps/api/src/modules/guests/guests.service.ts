@@ -2,6 +2,7 @@ import type { Guest } from '@prisma/client';
 import { prisma } from '../../config/prisma.js';
 import { encrypt, decrypt } from '../../common/utils/crypto.js';
 import { maskNik, maskPhone, maskEmail } from '../../common/utils/masking.js';
+import { enrollFace } from '../face/face.service.js';
 import type {
   GuestCreateInput,
   GuestUpdateInput,
@@ -18,7 +19,6 @@ export function toInternal(g: Guest) {
     phone: decrypt(g.phoneEncrypted),
     email: decrypt(g.emailEncrypted),
     consentAt: g.consentAt,
-    hasFace: Boolean(g.faceHash),
     createdAt: g.createdAt,
     updatedAt: g.updatedAt,
   };
@@ -69,6 +69,7 @@ export async function getGuestById(id: string) {
 }
 
 export async function createGuest(data: GuestCreateInput) {
+  // 1. Simpan data tamu ke DB (tanpa face)
   const g = await prisma.guest.create({
     data: {
       fullName: data.fullName,
@@ -78,10 +79,28 @@ export async function createGuest(data: GuestCreateInput) {
       phoneEncrypted: encrypt(data.phone ?? null),
       emailEncrypted: encrypt(data.email ?? null),
       consentAt: data.consentAt ? new Date(data.consentAt) : null,
-      facePhoto: data.facePhoto ?? null,
-      faceHash: data.faceHash ?? null,
     },
   });
+
+  // 2. Kalau ada foto, enroll otomatis (async, tidak blocking response)
+  if (data.faceImage && data.consentAt) {
+    try {
+      const result = await enrollFace(data.faceImage, g.id);
+      if (!result.ok) {
+        // Log warning tapi tidak gagalkan create guest
+        console.warn(
+          `[auto-enroll] Gagal enroll guest ${g.id}: ${result.reason}`
+        );
+      } else {
+        console.log(
+          `[auto-enroll] Guest ${g.id} enrolled: ${result.embeddingLength} dims, quality ${result.quality}`
+        );
+      }
+    } catch (e) {
+      console.error('[auto-enroll] Error:', e);
+    }
+  }
+
   return toInternal(g);
 }
 
@@ -96,10 +115,21 @@ export async function updateGuest(id: string, data: GuestUpdateInput) {
   if (data.consentAt !== undefined) {
     payload.consentAt = data.consentAt ? new Date(data.consentAt) : null;
   }
-  if (data.facePhoto !== undefined) payload.facePhoto = data.facePhoto;
-  if (data.faceHash !== undefined) payload.faceHash = data.faceHash;
 
   const g = await prisma.guest.update({ where: { id }, data: payload });
+
+  // Kalau ada foto baru, re-enroll (update embedding)
+  if (data.faceImage) {
+    try {
+      const result = await enrollFace(data.faceImage, id);
+      if (!result.ok) {
+        console.warn(`[auto-enroll] Re-enroll guest ${id} gagal: ${result.reason}`);
+      }
+    } catch (e) {
+      console.error('[auto-enroll] Error:', e);
+    }
+  }
+
   return toInternal(g);
 }
 

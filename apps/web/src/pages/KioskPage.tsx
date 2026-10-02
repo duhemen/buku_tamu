@@ -8,7 +8,6 @@ import {
   createHandover,
   HandoverType,
 } from '@/services/handover.service';
-import { computeFaceHash } from '@/lib/faceHash';
 import { getToken } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -63,7 +62,6 @@ export default function KioskPage() {
   const [form, setForm] = useState<FormState>(initialState);
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
-  const [faceHash, setFaceHash] = useState<string | null>(null);
   const [matchedGuest, setMatchedGuest] = useState<FaceGuest | null>(null);
   const [matching, setMatching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -113,9 +111,7 @@ export default function KioskPage() {
     setMatching(true);
     setError(null);
     try {
-      const hash = await computeFaceHash(dataUrl);
-      setFaceHash(hash);
-      const result = await matchFace(hash, dataUrl);
+      const result = await matchFace('', dataUrl);
       if (result.matched && result.guest) {
         setMatchedGuest(result.guest);
         applyGuest(result.guest);
@@ -124,6 +120,8 @@ export default function KioskPage() {
       }
     } catch (e) {
       console.error('Face match error:', e);
+      // tidak fatal — lanjut sebagai tamu baru
+      setMatchedGuest(null);
     } finally {
       setMatching(false);
     }
@@ -131,7 +129,6 @@ export default function KioskPage() {
 
   const resetFace = () => {
     setPhoto(null);
-    setFaceHash(null);
     setMatchedGuest(null);
     setShowCamera(true);
   };
@@ -154,8 +151,19 @@ export default function KioskPage() {
       let guestId: string;
 
       if (matchedGuest) {
+        // Tamu lama — pakai guestId yang sudah ada
         guestId = matchedGuest.id;
+
+        // Optional: update embedding dengan foto baru (biar makin akurat)
+        if (photo) {
+          try {
+            await attachFace(matchedGuest.id, photo);
+          } catch {
+            // ignore — tidak fatal
+          }
+        }
       } else {
+        // Tamu baru — kirim foto untuk auto-enroll
         const guest = await createGuest({
           fullName: form.fullName.trim(),
           company: form.company.trim() || undefined,
@@ -164,12 +172,12 @@ export default function KioskPage() {
           phone: form.phone.trim() || undefined,
           email: form.email.trim() || undefined,
           consentAt: new Date().toISOString(),
-          facePhoto: photo || undefined,
-          faceHash: faceHash || undefined,
+          faceImage: photo || undefined,
         });
         guestId = guest.id;
       }
 
+      // Check-in
       const result = await checkIn({
         guestId,
         purpose: form.purpose.trim(),
@@ -177,6 +185,7 @@ export default function KioskPage() {
         notes: form.notes.trim() || undefined,
       });
 
+      // Serah terima (kalau ada)
       if (form.hasHandover) {
         await createHandover({
           visitId: result.visit.id,
@@ -187,11 +196,12 @@ export default function KioskPage() {
         });
       }
 
+      // Simpan foto di localStorage untuk kartu (hanya preview lokal, tidak ke DB)
       if (photo) {
         try {
           localStorage.setItem('bt_photo_' + result.visit.id, photo);
         } catch {
-          // ignore quota errors
+          // ignore quota
         }
       }
 
@@ -311,10 +321,12 @@ export default function KioskPage() {
             </div>
 
             <div className="bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-xl p-4 text-sm text-brand-800 dark:text-brand-300">
-              <p className="font-semibold mb-1">Info</p>
-              <p>
-                Wajah hanya dipakai untuk mengenali tamu lama. Data foto
-                disimpan terenkripsi dan tidak dibagikan ke pihak ketiga.
+              <p className="font-semibold mb-1">Privasi Anda Terlindungi</p>
+              <p className="text-xs leading-relaxed">
+                Kami <strong>tidak menyimpan foto</strong> wajah Anda. Yang
+                disimpan hanya <strong>vektor matematis</strong> (512 angka)
+                yang tidak bisa direkonstruksi menjadi foto. Data terenkripsi
+                dan dapat dihapus atas permintaan.
               </p>
             </div>
           </div>
@@ -477,9 +489,11 @@ export default function KioskPage() {
                 className="w-4 h-4 mt-0.5"
               />
               <span className="text-sm text-slate-600 dark:text-slate-400">
-                Saya menyetujui data pribadi saya (termasuk NIK, nomor HP,
-                email, dan foto wajah) digunakan untuk keperluan administrasi
-                kunjungan, dan disimpan secara terenkripsi.
+                Saya menyetujui data pribadi saya (NIK, nomor HP, email) dan{' '}
+                <strong>data biometrik wajah dalam bentuk vektor matematis</strong>{' '}
+                yang tidak dapat direkonstruksi menjadi foto, digunakan untuk
+                auto-fill kunjungan berikutnya. Data disimpan terenkripsi dan
+                dapat dihapus atas permintaan.
               </span>
             </label>
 
@@ -495,7 +509,6 @@ export default function KioskPage() {
                 onClick={() => {
                   setForm(initialState);
                   setPhoto(null);
-                  setFaceHash(null);
                   setMatchedGuest(null);
                 }}
                 className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-medium"

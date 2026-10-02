@@ -4,7 +4,7 @@
 > antrean otomatis, kartu QR/barcode, dashboard publik, dan TV antrean live.
 
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Node](https://img.shields.io/badge/node-%3E%3D20-339933)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9-F69220)
@@ -514,9 +514,10 @@ pnpm --filter @buku-tamu/worker dev
 - [x] Enkripsi AES-256 + audit log
 - [x] Export Excel/CSV
 - [x] **Export PDF laporan bulanan** (v1.1.0)
+- [x] **Face recognition real (InsightFace + Privacy-First)** (v1.2.0)
 
 ### Dalam Pengembangan
-- [ ] Face service real (InsightFace + liveness)
+- [x] Face service real (InsightFace, ~99.8% akurat)
 - [ ] Notifikasi WhatsApp
 - [ ] Cetak thermal auto (kiosk mode)
 

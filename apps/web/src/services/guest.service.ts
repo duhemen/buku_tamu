@@ -9,8 +9,7 @@ export interface CreateGuestPayload {
   phone?: string;
   email?: string;
   consentAt?: string;
-  facePhoto?: string;
-  faceHash?: string;
+  faceImage?: string;
 }
 
 export type UpdateGuestPayload = Partial<CreateGuestPayload>;

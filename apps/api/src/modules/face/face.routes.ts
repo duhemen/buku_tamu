@@ -1,41 +1,57 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { findGuestByFaceHash, attachFaceToGuest } from './face-match.service.js';
-import { authGuard } from '../../common/middleware/auth.js';
+import {
+  recognizeFace,
+  enrollFace,
+  faceServiceHealth,
+} from './face.service.js';
+import { authGuard, roleGuard } from '../../common/middleware/auth.js';
 
-const matchSchema = z.object({
-  hash: z.string().min(32).max(512),
-  photo: z.string().optional(),
+const recognizeSchema = z.object({
+  image: z.string().min(50, 'Image terlalu pendek'),
 });
 
-const attachSchema = z.object({
+const enrollSchema = z.object({
+  image: z.string().min(50, 'Image terlalu pendek'),
   guestId: z.string().min(1),
-  photo: z.string().min(20),
-  hash: z.string().min(32).max(512),
 });
 
 export async function faceRoutes(app: FastifyInstance) {
-  app.addHook('preHandler', authGuard);
-
-  app.post('/match', async (req, reply) => {
-    const parsed = matchSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return reply.code(400).send({ error: 'Invalid input' });
-    }
-    const result = await findGuestByFaceHash(parsed.data.hash);
-    return result;
+  // Public: health check face service
+  app.get('/health', async () => {
+    return faceServiceHealth();
   });
 
-  app.post('/attach', async (req, reply) => {
-    const parsed = attachSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return reply.code(400).send({ error: 'Invalid input' });
-    }
-    await attachFaceToGuest(
-      parsed.data.guestId,
-      parsed.data.photo,
-      parsed.data.hash
+  // Protected: enroll + recognize
+  app.register(async (instance) => {
+    instance.addHook('preHandler', authGuard);
+
+    instance.post(
+      '/recognize',
+      { preHandler: [roleGuard('ADMIN', 'RECEPTIONIST')] },
+      async (req, reply) => {
+        const parsed = recognizeSchema.safeParse(req.body);
+        if (!parsed.success) {
+          return reply
+            .code(400)
+            .send({ error: 'Invalid input', details: parsed.error.flatten() });
+        }
+        return recognizeFace(parsed.data.image);
+      }
     );
-    return { ok: true };
+
+    instance.post(
+      '/enroll',
+      { preHandler: [roleGuard('ADMIN', 'RECEPTIONIST')] },
+      async (req, reply) => {
+        const parsed = enrollSchema.safeParse(req.body);
+        if (!parsed.success) {
+          return reply
+            .code(400)
+            .send({ error: 'Invalid input', details: parsed.error.flatten() });
+        }
+        return enrollFace(parsed.data.image, parsed.data.guestId);
+      }
+    );
   });
 }

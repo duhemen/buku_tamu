@@ -8,8 +8,7 @@ export const guestCreateSchema = z.object({
   phone: z.string().max(50).optional().nullable(),
   email: z.string().email().optional().nullable(),
   consentAt: z.string().datetime().optional().nullable(),
-  facePhoto: z.string().max(2_000_000).optional().nullable(),
-  faceHash: z.string().max(512).optional().nullable(),
+  faceImage: z.string().max(5_000_000).optional().nullable(),
 });
 
 export const guestUpdateSchema = guestCreateSchema.partial();

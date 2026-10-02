@@ -12,6 +12,8 @@ const schema = z.object({
   JWT_EXPIRES_IN: z.string().default('8h'),
   ENCRYPTION_KEY: z.string().min(16),
   CORS_ORIGIN: z.string().default('*'),
+  FACE_SERVICE_URL: z.string().default('http://localhost:8000'),
+  FACE_THRESHOLD: z.string().default('0.5'),
   TZ: z.string().default('Asia/Jakarta'),
 });
 
