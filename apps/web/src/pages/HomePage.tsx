@@ -6,28 +6,36 @@ export default function HomePage() {
 
   const cards = [
     {
+      to: '/tv',
+      icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+      title: 'TV Antrean Live',
+      desc: 'Panggilan antrean real-time dengan suara. Untuk ditampilkan di layar TV lobi.',
+      color: 'from-rose-500 to-pink-600',
+      shadow: 'shadow-rose-500/30',
+    },
+    {
       to: '/kiosk',
       icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-      title: t('home.kiosk.title'),
-      desc: t('home.kiosk.desc'),
+      title: 'Kiosk Tamu',
+      desc: 'Daftar kunjungan, ambil nomor antrean, dan cetak kartu tamu.',
       color: 'from-brand-500 to-brand-700',
       shadow: 'shadow-brand-500/30',
     },
     {
-      to: '/dashboard',
-      icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-      title: t('home.dashboard.title'),
-      desc: t('home.dashboard.desc'),
+      to: '/verify',
+      icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+      title: 'Verifikasi',
+      desc: 'Scan QR kartu tamu atau masukkan kode untuk cek data kunjungan.',
       color: 'from-emerald-500 to-teal-600',
       shadow: 'shadow-emerald-500/30',
     },
     {
-      to: '/login',
-      icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
-      title: t('home.login.title'),
-      desc: t('home.login.desc'),
-      color: 'from-amber-500 to-orange-600',
-      shadow: 'shadow-amber-500/30',
+      to: '/dashboard',
+      icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+      title: 'Dashboard Publik',
+      desc: 'Statistik kunjungan hari ini dengan grafik. Tanpa data sensitif.',
+      color: 'from-violet-500 to-purple-600',
+      shadow: 'shadow-violet-500/30',
     },
   ];
 
@@ -37,23 +45,23 @@ export default function HomePage() {
         <div className="inline-block mb-4">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 text-xs font-medium">
             <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-            v1.0 - Live
+            Selamat Datang
           </span>
         </div>
         <h1 className="text-5xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-slate-800 via-brand-700 to-slate-800 dark:from-slate-100 dark:via-brand-300 dark:to-slate-100 bg-clip-text text-transparent">
-          {t('home.title')}
+          Buku Tamu Digital
         </h1>
         <p className="text-lg text-slate-500 dark:text-slate-400">
-          {t('home.subtitle')}
+          Sistem Buku Tamu Digital Terintegrasi
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
         {cards.map((c, i) => (
           <Link
             key={c.to}
             to={c.to}
-            className="group relative p-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 hover:border-transparent hover:shadow-2xl dark:hover:shadow-brand-500/10 transition-all duration-300 overflow-hidden animate-fade-up"
+            className="group relative p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 hover:border-transparent hover:shadow-2xl dark:hover:shadow-brand-500/10 transition-all duration-300 overflow-hidden animate-fade-up"
             style={{ animationDelay: (i * 80) + 'ms', animationFillMode: 'both' }}
           >
             <div
@@ -84,16 +92,16 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d={c.icon} />
                 </svg>
               </div>
-              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                 {c.title}
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 {c.desc}
               </p>
-              <div className="mt-5 flex items-center text-sm font-medium text-brand-600 dark:text-brand-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="mt-4 flex items-center text-xs font-medium text-brand-600 dark:text-brand-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 Buka
                 <svg
-                  className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform"
+                  className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -105,6 +113,10 @@ export default function HomePage() {
             </div>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-14 text-center text-xs text-slate-400 dark:text-slate-500">
+        Sistem internal - hubungi administrator untuk info lebih lanjut.
       </div>
     </div>
   );

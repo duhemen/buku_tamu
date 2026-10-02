@@ -16,6 +16,7 @@ import { verifyRoutes } from './modules/verify/verify.routes.js';
 import { faceRoutes } from './modules/face/face.routes.js';
 import { handoverRoutes } from './modules/handovers/handover.routes.js';
 import { reportsRoutes } from './modules/reports/reports.routes.js';
+import { publicRoutes } from './modules/public/public.routes.js';
 
 const app = Fastify({
   logger: {
@@ -49,6 +50,7 @@ await app.register(verifyRoutes, { prefix: '/api/verify' });
 await app.register(faceRoutes, { prefix: '/api/face' });
 await app.register(handoverRoutes, { prefix: '/api/handovers' });
 await app.register(reportsRoutes, { prefix: '/api/reports' });
+await app.register(publicRoutes, { prefix: '/api/public' });
 
 app.setErrorHandler((error, _req, reply) => {
   app.log.error(error);

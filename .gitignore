@@ -69,3 +69,7 @@ final-*.ps1
 *.tmp
 *.orig
 .cache/
+
+# Secrets
+SECRETS.txt
+.env.bundle

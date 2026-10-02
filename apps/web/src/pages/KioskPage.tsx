@@ -1,15 +1,12 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import CameraScanner from '@/components/CameraScanner';
-import { createGuest } from '@/services/guest.service';
-import { checkIn } from '@/services/visit.service';
-import { matchFace, attachFace, FaceGuest } from '@/services/face.service';
 import {
-  createHandover,
+  publicCheckIn,
+  publicFaceMatch,
+  FaceGuest,
   HandoverType,
-} from '@/services/handover.service';
-import { getToken } from '@/lib/api';
-import { useAuthStore } from '@/stores/auth.store';
+} from '@/services/public.service';
 
 interface FormState {
   fullName: string;
@@ -66,28 +63,7 @@ export default function KioskPage() {
   const [matching, setMatching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [authReady, setAuthReady] = useState(false);
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
-  const user = useAuthStore((s) => s.user);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function ensureAuth() {
-      if (!getToken() || !user) {
-        try {
-          await login('admin@buku-tamu.local', 'admin123');
-        } catch (e) {
-          console.warn('Kiosk auto-login gagal:', e);
-        }
-      }
-      if (!cancelled) setAuthReady(true);
-    }
-    ensureAuth();
-    return () => {
-      cancelled = true;
-    };
-  }, [login, user]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -110,9 +86,10 @@ export default function KioskPage() {
     setShowCamera(false);
     setMatching(true);
     setError(null);
+
     try {
-      const result = await matchFace('', dataUrl);
-      if (result.matched && result.guest) {
+      const result = await publicFaceMatch(dataUrl);
+      if (result.ok && result.matched && result.guest) {
         setMatchedGuest(result.guest);
         applyGuest(result.guest);
       } else {
@@ -120,7 +97,6 @@ export default function KioskPage() {
       }
     } catch (e) {
       console.error('Face match error:', e);
-      // tidak fatal — lanjut sebagai tamu baru
       setMatchedGuest(null);
     } finally {
       setMatching(false);
@@ -148,23 +124,8 @@ export default function KioskPage() {
 
     setSubmitting(true);
     try {
-      let guestId: string;
-
-      if (matchedGuest) {
-        // Tamu lama — pakai guestId yang sudah ada
-        guestId = matchedGuest.id;
-
-        // Optional: update embedding dengan foto baru (biar makin akurat)
-        if (photo) {
-          try {
-            await attachFace(matchedGuest.id, photo);
-          } catch {
-            // ignore — tidak fatal
-          }
-        }
-      } else {
-        // Tamu baru — kirim foto untuk auto-enroll
-        const guest = await createGuest({
+      const result = await publicCheckIn({
+        guest: {
           fullName: form.fullName.trim(),
           company: form.company.trim() || undefined,
           address: form.address.trim() || undefined,
@@ -172,54 +133,39 @@ export default function KioskPage() {
           phone: form.phone.trim() || undefined,
           email: form.email.trim() || undefined,
           consentAt: new Date().toISOString(),
-          faceImage: photo || undefined,
-        });
-        guestId = guest.id;
-      }
-
-      // Check-in
-      const result = await checkIn({
-        guestId,
-        purpose: form.purpose.trim(),
-        destination: form.destination.trim(),
-        notes: form.notes.trim() || undefined,
+          faceImage: !matchedGuest && photo ? photo : undefined,
+          matchedGuestId: matchedGuest?.id,
+        },
+        visit: {
+          purpose: form.purpose.trim(),
+          destination: form.destination.trim(),
+          notes: form.notes.trim() || undefined,
+        },
+        handover: form.hasHandover
+          ? {
+              type: form.handoverType,
+              referenceNo: form.handoverRefNo.trim() || undefined,
+              description: form.handoverDescription.trim(),
+              recipient: form.handoverRecipient.trim() || undefined,
+            }
+          : null,
       });
 
-      // Serah terima (kalau ada)
-      if (form.hasHandover) {
-        await createHandover({
-          visitId: result.visit.id,
-          type: form.handoverType,
-          referenceNo: form.handoverRefNo.trim() || undefined,
-          description: form.handoverDescription.trim(),
-          recipient: form.handoverRecipient.trim() || undefined,
-        });
-      }
-
-      // Simpan foto di localStorage untuk kartu (hanya preview lokal, tidak ke DB)
       if (photo) {
         try {
-          localStorage.setItem('bt_photo_' + result.visit.id, photo);
+          localStorage.setItem('bt_photo_' + result.visitId, photo);
         } catch {
           // ignore quota
         }
       }
 
-      navigate('/kartu/' + result.visit.id);
+      navigate('/kartu/' + result.visitId);
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setSubmitting(false);
     }
   };
-
-  if (!authReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950">
-        <div className="text-slate-500">Menyiapkan kiosk...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950">

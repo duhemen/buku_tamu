@@ -15,7 +15,7 @@ export default function Layout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -26,7 +26,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 backdrop-blur-sm bg-white/90 dark:bg-slate-900/90">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold shadow-md shadow-brand-500/30 group-hover:scale-105 transition-transform">
@@ -37,23 +37,25 @@ export default function Layout() {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-1.5">
             <NavLink to="/" end className={linkClass}>
-              {t('nav.home')}
+              Beranda
             </NavLink>
-            <NavLink to="/dashboard" className={linkClass}>
-              {t('nav.dashboard')}
-            </NavLink>
-            <NavLink to="/verify" className={linkClass}>
-              {t('nav.verify')}
+            <NavLink to="/tv" className={linkClass}>
+              TV Antrean
             </NavLink>
             <NavLink to="/kiosk" className={linkClass}>
-              {t('nav.kiosk')}
+              Kiosk
+            </NavLink>
+            <NavLink to="/verify" className={linkClass}>
+              Verifikasi
+            </NavLink>
+            <NavLink to="/dashboard" className={linkClass}>
+              Dashboard
             </NavLink>
 
-            {/* Toggle group */}
+            {/* Toggle group - selalu tampil */}
             <div className="ml-3 pl-3 border-l border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
-              {/* Language toggle */}
               <button
                 onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
                 className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold flex items-center justify-center transition"
@@ -62,7 +64,6 @@ export default function Layout() {
                 {lang.toUpperCase()}
               </button>
 
-              {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
                 className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition"
@@ -80,28 +81,22 @@ export default function Layout() {
               </button>
             </div>
 
-            {user ? (
+            {/* HANYA tampil jika SUDAH login */}
+            {user && (
               <div className="flex items-center gap-2 ml-2 pl-3 border-l border-slate-200 dark:border-slate-700">
-                <span className="text-sm text-slate-600 dark:text-slate-400 hidden md:inline">
-                  {user.name}{' '}
-                  <span className="text-xs text-slate-400 dark:text-slate-500">
-                    ({user.role})
-                  </span>
-                </span>
+                <Link
+                  to="/admin"
+                  className="px-3 py-1.5 text-xs rounded-lg bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/50 font-medium transition"
+                >
+                  Admin
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-1.5 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
+                  className="px-3 py-1.5 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
                 >
-                  {t('nav.logout')}
+                  Keluar
                 </button>
               </div>
-            ) : (
-              <Link
-                to="/login"
-                className="ml-2 px-3 py-1.5 text-sm rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium shadow-sm shadow-brand-500/30 transition"
-              >
-                {t('nav.login')}
-              </Link>
             )}
           </nav>
         </div>
@@ -111,7 +106,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-sm text-slate-500 dark:text-slate-400 transition-colors">
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
         &copy; {new Date().getFullYear()} {t('app.name')}
       </footer>
     </div>
