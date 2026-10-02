@@ -1,6 +1,6 @@
 # Buku Tamu Digital
 
-> **Sistem Buku Tamu Modern** — Face recognition, serah terima digital,
+> **Sistem Buku Tamu Modern** â€” Face recognition, serah terima digital,
 > antrean otomatis, kartu QR/barcode, dashboard publik, dan TV antrean live.
 
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
@@ -16,12 +16,12 @@
 - [Tentang Proyek](#-tentang-proyek)
 - [Fitur Utama](#-fitur-utama)
 - [Preview Aplikasi](#-preview-aplikasi)
-- [Arsitektur Sistem](#️-arsitektur-sistem)
+- [Arsitektur Sistem](#ï¸-arsitektur-sistem)
 - [Struktur Folder](#-struktur-folder)
-- [Teknologi yang Digunakan](#️-teknologi-yang-digunakan)
+- [Teknologi yang Digunakan](#ï¸-teknologi-yang-digunakan)
 - [Instalasi & Setup](#-instalasi--setup)
 - [Panduan Penggunaan](#-panduan-penggunaan)
-- [Roadmap](#️-roadmap)
+- [Roadmap](#ï¸-roadmap)
 - [Kontribusi](#-kontribusi)
 - [Lisensi](#-lisensi)
 
@@ -42,7 +42,7 @@ untuk pengantar surat / jaminan tender, serta **dashboard publik** tanpa data se
 
 ### Mengapa Buku Tamu Digital?
 
-| ❌ Masalah Lama | ✅ Solusi Kami |
+| âŒ Masalah Lama | âœ… Solusi Kami |
 |---|---|
 | Buku tamu kertas mudah hilang | Database terpusat + audit trail |
 | Data tamu tidak terbaca | Enkripsi AES-256 untuk NIK/HP/email |
@@ -56,53 +56,53 @@ untuk pengantar surat / jaminan tender, serta **dashboard publik** tanpa data se
 ## Fitur Utama
 
 ### Kiosk Tamu
-- ✅ Form lengkap (nama, instansi, alamat, NIK, HP, email)
-- ✅ Foto wajah via webcam / kamera HP
-- ✅ **Face recognition auto-fill** — tamu lama dikenali otomatis
-- ✅ Consent eksplisit untuk data pribadi
+- âœ… Form lengkap (nama, instansi, alamat, NIK, HP, email)
+- âœ… Foto wajah via webcam / kamera HP
+- âœ… **Face recognition auto-fill** â€” tamu lama dikenali otomatis
+- âœ… Consent eksplisit untuk data pribadi
 
 ### Serah Terima Digital
-- ✅ **5 jenis**: Surat, Jaminan Tender, Paket, Dokumen, Lainnya
-- ✅ Nomor referensi (No. surat / No. jaminan)
-- ✅ **Bukti terima digital** + QR code + kolom tanda tangan
-- ✅ Tracking: `Diterima` -> `Diproses` -> `Selesai` -> `Dikembalikan`
+- âœ… **5 jenis**: Surat, Jaminan Tender, Paket, Dokumen, Lainnya
+- âœ… Nomor referensi (No. surat / No. jaminan)
+- âœ… **Bukti terima digital** + QR code + kolom tanda tangan
+- âœ… Tracking: `Diterima` -> `Diproses` -> `Selesai` -> `Dikembalikan`
 
 ### Kartu Tamu
-- ✅ Nomor antrean otomatis (`A-001`, `A-002`) reset harian
-- ✅ **QR code + barcode** untuk verifikasi
-- ✅ Format **80mm thermal printer** siap cetak
-- ✅ Foto tamu + tujuan + keperluan
+- âœ… Nomor antrean otomatis (`A-001`, `A-002`) reset harian
+- âœ… **QR code + barcode** untuk verifikasi
+- âœ… Format **80mm thermal printer** siap cetak
+- âœ… Foto tamu + tujuan + keperluan
 
 ### Verifikasi
-- ✅ Scan QR via kamera HP (html5-qrcode)
-- ✅ Input manual kode `A-xxx` atau `TT-xxx`
-- ✅ Lookup kartu by kode
-- ✅ Data sensitif ter-mask
+- âœ… Scan QR via kamera HP (html5-qrcode)
+- âœ… Input manual kode `A-xxx` atau `TT-xxx`
+- âœ… Lookup kartu by kode
+- âœ… Data sensitif ter-mask
 
 ### Dashboard Publik
-- ✅ Statistik: Hari / Minggu / Bulan / Tahun ini
-- ✅ Chart: per jam, tren mingguan, pie tujuan, pie perihal
-- ✅ Recent activity feed + auto-refresh 30 detik
-- ✅ **Masking otomatis** (NIK, HP, email)
+- âœ… Statistik: Hari / Minggu / Bulan / Tahun ini
+- âœ… Chart: per jam, tren mingguan, pie tujuan, pie perihal
+- âœ… Recent activity feed + auto-refresh 30 detik
+- âœ… **Masking otomatis** (NIK, HP, email)
 
 ### TV Antrean Live
-- ✅ Fullscreen untuk TV lobi
-- ✅ Nomor dipanggil besar + nama + tujuan
-- ✅ **Suara bel + panggilan suara Bahasa Indonesia**
-- ✅ Daftar antrean menunggu + real-time stats
+- âœ… Fullscreen untuk TV lobi
+- âœ… Nomor dipanggil besar + nama + tujuan
+- âœ… **Suara bel + panggilan suara Bahasa Indonesia**
+- âœ… Daftar antrean menunggu + real-time stats
 
 ### Admin Panel
-- ✅ 4 tab: Antrean, Kunjungan, Serah Terima, Data Tamu
-- ✅ Panggil / layani antrean
-- ✅ Update status serah terima
-- ✅ Export Excel / CSV, edit, hapus
+- âœ… 4 tab: Antrean, Kunjungan, Serah Terima, Data Tamu
+- âœ… Panggil / layani antrean
+- âœ… Update status serah terima
+- âœ… Export Excel / CSV, edit, hapus
 
 ### Keamanan
-- ✅ **AES-256-GCM** encryption untuk NIK/HP/email
-- ✅ **Argon2** hash password
-- ✅ JWT + Role-Based Access Control
-- ✅ Audit log setiap aksi
-- ✅ Rate limiting + Helmet security headers
+- âœ… **AES-256-GCM** encryption untuk NIK/HP/email
+- âœ… **Argon2** hash password
+- âœ… JWT + Role-Based Access Control
+- âœ… Audit log setiap aksi
+- âœ… Rate limiting + Helmet security headers
 
 ---
 
@@ -111,233 +111,233 @@ untuk pengantar surat / jaminan tender, serta **dashboard publik** tanpa data se
 ### 1. Kiosk Tamu
 
 ```
-╔══════════════════════════════════════════════════════════╗
-║  Kiosk Buku Tamu                              [Beranda]  ║
-╠══════════════════════════════════════════════════════════╣
-║  ┌───────────────┐  ┌───────────────────────────────┐   ║
-║  │ FOTO WAJAH    │  │ DATA TAMU                     │   ║
-║  │ ┌───────────┐ │  │ Nama: [_______________]       │   ║
-║  │ │   👤      │ │  │ Instansi: [___________]       │   ║
-║  │ │  Kamera   │ │  │ NIK: [________________]       │   ║
-║  │ └───────────┘ │  │ HP: [________________]        │   ║
-║  │ [📸 Ambil]    │  │ Email: [_____________]        │   ║
-║  │               │  ├───────────────────────────────┤   ║
-║  │ ✅ Tamu       │  │ TUJUAN KUNJUNGAN              │   ║
-║  │    Dikenali   │  │ Divisi: [Bagian Umum____]     │   ║
-║  │    stuv       │  │ Keperluan: [Rapat_______]     │   ║
-║  │               │  ├───────────────────────────────┤   ║
-║  │ [🔄 Foto Ulang]│  │ SERAH TERIMA (Opsional)       │   ║
-║  └───────────────┘  │ [ ] Surat  [ ] Tender        │   ║
-║                     │ [ ] Paket  [ ] Dokumen       │   ║
-║                     │ [Daftar & Cetak Kartu]        │   ║
-║                     └───────────────────────────────┘   ║
-╚══════════════════════════════════════════════════════════╝
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  Kiosk Buku Tamu                              [Beranda]  â•‘
+â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£
+â•‘  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â•‘
+â•‘  â”‚ FOTO WAJAH    â”‚  â”‚ DATA TAMU                     â”‚   â•‘
+â•‘  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚  â”‚ Nama: [_______________]       â”‚   â•‘
+â•‘  â”‚ â”‚   ðŸ‘¤      â”‚ â”‚  â”‚ Instansi: [___________]       â”‚   â•‘
+â•‘  â”‚ â”‚  Kamera   â”‚ â”‚  â”‚ NIK: [________________]       â”‚   â•‘
+â•‘  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚  â”‚ HP: [________________]        â”‚   â•‘
+â•‘  â”‚ [ðŸ“¸ Ambil]    â”‚  â”‚ Email: [_____________]        â”‚   â•‘
+â•‘  â”‚               â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤   â•‘
+â•‘  â”‚ âœ… Tamu       â”‚  â”‚ TUJUAN KUNJUNGAN              â”‚   â•‘
+â•‘  â”‚    Dikenali   â”‚  â”‚ Divisi: [Bagian Umum____]     â”‚   â•‘
+â•‘  â”‚    stuv       â”‚  â”‚ Keperluan: [Rapat_______]     â”‚   â•‘
+â•‘  â”‚               â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤   â•‘
+â•‘  â”‚ [ðŸ”„ Foto Ulang]â”‚  â”‚ SERAH TERIMA (Opsional)       â”‚   â•‘
+â•‘  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚ [ ] Surat  [ ] Tender        â”‚   â•‘
+â•‘                     â”‚ [ ] Paket  [ ] Dokumen       â”‚   â•‘
+â•‘                     â”‚ [Daftar & Cetak Kartu]        â”‚   â•‘
+â•‘                     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 **Highlight:**
-- 🎥 Webcam / kamera HP langsung di browser
-- 🤖 Face recognition otomatis (auto-fill data)
-- 🎨 Grid 5 tombol jenis serah terima
-- 📱 Responsive untuk HP & laptop
+- ðŸŽ¥ Webcam / kamera HP langsung di browser
+- ðŸ¤– Face recognition otomatis (auto-fill data)
+- ðŸŽ¨ Grid 5 tombol jenis serah terima
+- ðŸ“± Responsive untuk HP & laptop
 
 ### 2. Kartu Tamu + Bukti Terima
 
 ```
-╔══════════════════════════════╗
-║      BUKU TAMU DIGITAL       ║
-║      Kartu Kunjungan         ║
-╠══════════════════════════════╣
-║                              ║
-║      NOMOR ANTREAN           ║
-║                              ║
-║         A-004                ║
-║                              ║
-║  ┌────┐  Nama  : stuv        ║
-║  │ 👤 │  Tujuan: Bagian      ║
-║  │    │         Pengadaan    ║
-║  └────┘  Hal   : Jaminan      ║
-║                  Tender       ║
-║                              ║
-║  [QR CODE]  ||||||||||||||   ║
-║                              ║
-║  Tanggal : 30 Sep 2026        ║
-║  Jam     : 20:08              ║
-╚══════════════════════════════╝
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘      BUKU TAMU DIGITAL       â•‘
+â•‘      Kartu Kunjungan         â•‘
+â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£
+â•‘                              â•‘
+â•‘      NOMOR ANTREAN           â•‘
+â•‘                              â•‘
+â•‘         A-004                â•‘
+â•‘                              â•‘
+â•‘  â”Œâ”€â”€â”€â”€â”  Nama  : stuv        â•‘
+â•‘  â”‚ ðŸ‘¤ â”‚  Tujuan: Bagian      â•‘
+â•‘  â”‚    â”‚         Pengadaan    â•‘
+â•‘  â””â”€â”€â”€â”€â”˜  Hal   : Jaminan      â•‘
+â•‘                  Tender       â•‘
+â•‘                              â•‘
+â•‘  [QR CODE]  ||||||||||||||   â•‘
+â•‘                              â•‘
+â•‘  Tanggal : 30 Sep 2026        â•‘
+â•‘  Jam     : 20:08              â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-╔══════════════════════════════╗
-║        BUKTI TERIMA          ║
-║      Buku Tamu Digital       ║
-╠══════════════════════════════╣
-║   KODE: TT-20260930-001      ║
-║                              ║
-║  Nama   : stuv               ║
-║  Jenis  : Jaminan Tender     ║
-║  No.Ref : JAM/2026/003       ║
-║  ┌──────────────────────┐    ║
-║  │ Jaminan tender...    │    ║
-║  └──────────────────────┘    ║
-║  Penerima : cekidao          ║
-║                              ║
-║  [QR]   ____________         ║
-║         Penerima             ║
-║         ____________         ║
-║         Pengirim             ║
-╚══════════════════════════════╝
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘        BUKTI TERIMA          â•‘
+â•‘      Buku Tamu Digital       â•‘
+â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£
+â•‘   KODE: TT-20260930-001      â•‘
+â•‘                              â•‘
+â•‘  Nama   : stuv               â•‘
+â•‘  Jenis  : Jaminan Tender     â•‘
+â•‘  No.Ref : JAM/2026/003       â•‘
+â•‘  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â•‘
+â•‘  â”‚ Jaminan tender...    â”‚    â•‘
+â•‘  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â•‘
+â•‘  Penerima : cekidao          â•‘
+â•‘                              â•‘
+â•‘  [QR]   ____________         â•‘
+â•‘         Penerima             â•‘
+â•‘         ____________         â•‘
+â•‘         Pengirim             â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### 3. Dashboard Publik
 
 ```
-╔════════════════════════════════════════════════════════════╗
-║  Buku Tamu Digital                [Beranda] [Dashboard]   ║
-╠════════════════════════════════════════════════════════════╣
-║  ● LIVE   Dashboard Publik            Rabu, 30 Sep 2026   ║
-║            Statistik kunjungan          19.31.13           ║
-║                                                            ║
-║  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐      ║
-║  │HARI INI  │ │MINGGU INI│ │BULAN INI │ │TAHUN INI │      ║
-║  │    1     │ │    1     │ │    1     │ │    1     │      ║
-║  └──────────┘ └──────────┘ └──────────┘ └──────────┘      ║
-║                                                            ║
-║  ┌────────────────────────┐  ┌────────────────────────┐   ║
-║  │ Kunjungan Per Jam      │  │ Tujuan Kunjungan       │   ║
-║  │     📈                 │  │       ◕                │   ║
-║  │    ╱ ╲                 │  │      ( )               │   ║
-║  │   ╱   ╲___             │  │       ◡                │   ║
-║  │  ╱                     │  │   Bagian Umum          │   ║
-║  └────────────────────────┘  └────────────────────────┘   ║
-╚════════════════════════════════════════════════════════════╝
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  Buku Tamu Digital                [Beranda] [Dashboard]   â•‘
+â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£
+â•‘  â— LIVE   Dashboard Publik            Rabu, 30 Sep 2026   â•‘
+â•‘            Statistik kunjungan          19.31.13           â•‘
+â•‘                                                            â•‘
+â•‘  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â•‘
+â•‘  â”‚HARI INI  â”‚ â”‚MINGGU INIâ”‚ â”‚BULAN INI â”‚ â”‚TAHUN INI â”‚      â•‘
+â•‘  â”‚    1     â”‚ â”‚    1     â”‚ â”‚    1     â”‚ â”‚    1     â”‚      â•‘
+â•‘  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â•‘
+â•‘                                                            â•‘
+â•‘  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â•‘
+â•‘  â”‚ Kunjungan Per Jam      â”‚  â”‚ Tujuan Kunjungan       â”‚   â•‘
+â•‘  â”‚     ðŸ“ˆ                 â”‚  â”‚       â—•                â”‚   â•‘
+â•‘  â”‚    â•± â•²                 â”‚  â”‚      ( )               â”‚   â•‘
+â•‘  â”‚   â•±   â•²___             â”‚  â”‚       â—¡                â”‚   â•‘
+â•‘  â”‚  â•±                     â”‚  â”‚   Bagian Umum          â”‚   â•‘
+â•‘  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ### 4. TV Antrean Live
 
 ```
-╔════════════════════════════════════════════════════════════╗
-║  Antrean Buku Tamu             Rabu, 30 Sep 2026           ║
-║  Sistem Buku Tamu Digital            18.28.52             ║
-╠════════════════════════════════════╦═══════════════════════╣
-║   NOMOR DIPANGGIL                   ║  ANTREAN MENUNGGU     ║
-║                                    ║                       ║
-║  ┌──────────────────────────────┐  ║  ┌─────────────────┐  ║
-║  │                              │  ║  │ ① A-001  xyz    │  ║
-║  │         A-003                │  ║  │   Bagian Umum   │  ║
-║  │                              │  ║  └─────────────────┘  ║
-║  │         stuv                 │  ║  ┌─────────────────┐  ║
-║  │    Tujuan: Bagian Umum       │  ║  │ ② A-002  emen   │  ║
-║  └──────────────────────────────┘  ║  └─────────────────┘  ║
-║                                    ║                       ║
-║  [TOTAL:1] [MENUNGGU:1]            ║                       ║
-║  [DIPANGGIL:1] [SELESAI:0]         ║                       ║
-╚════════════════════════════════════╩═══════════════════════╝
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  Antrean Buku Tamu             Rabu, 30 Sep 2026           â•‘
+â•‘  Sistem Buku Tamu Digital            18.28.52             â•‘
+â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•¦â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£
+â•‘   NOMOR DIPANGGIL                   â•‘  ANTREAN MENUNGGU     â•‘
+â•‘                                    â•‘                       â•‘
+â•‘  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â•‘  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â•‘
+â•‘  â”‚                              â”‚  â•‘  â”‚ â‘  A-001  xyz    â”‚  â•‘
+â•‘  â”‚         A-003                â”‚  â•‘  â”‚   Bagian Umum   â”‚  â•‘
+â•‘  â”‚                              â”‚  â•‘  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â•‘
+â•‘  â”‚         stuv                 â”‚  â•‘  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â•‘
+â•‘  â”‚    Tujuan: Bagian Umum       â”‚  â•‘  â”‚ â‘¡ A-002  emen   â”‚  â•‘
+â•‘  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â•‘  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â•‘
+â•‘                                    â•‘                       â•‘
+â•‘  [TOTAL:1] [MENUNGGU:1]            â•‘                       â•‘
+â•‘  [DIPANGGIL:1] [SELESAI:0]         â•‘                       â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•©â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 **Highlight TV:**
-- 🔔 Suara bel + panggilan suara Bahasa Indonesia
-- 🎨 Tema dark navy `#0F172A` elegan
-- 📺 Auto-refresh 5 detik
-- 🔊 Tekan `F11` untuk fullscreen
+- ðŸ”” Suara bel + panggilan suara Bahasa Indonesia
+- ðŸŽ¨ Tema dark navy `#0F172A` elegan
+- ðŸ“º Auto-refresh 5 detik
+- ðŸ”Š Tekan `F11` untuk fullscreen
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## ðŸ—ï¸ Arsitektur Sistem
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    CLIENT (Browser)                         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │ Kiosk    │  │ Dashboard│  │ TV Live  │  │ Admin    │   │
-│  │ (HP/PC)  │  │ Publik   │  │ (Lobi)   │  │ Panel    │   │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
-│       │              │              │              │        │
-│       └──────────────┴──────────────┴──────────────┘        │
-│                              │                              │
-│                         HTTPS (TLS)                         │
-└──────────────────────────────┬──────────────────────────────┘
-                               │
-┌──────────────────────────────▼──────────────────────────────┐
-│              CLOUDFLARE TUNNEL / NGINX                      │
-│              Reverse Proxy + SSL Termination                │
-└──────────────────────────────┬──────────────────────────────┘
-                               │
-        ┌──────────────────────┴──────────────────────┐
-        │                                             │
-┌───────▼─────────┐                          ┌────────▼────────┐
-│  FRONTEND       │                          │  BACKEND        │
-│  React + Vite   │  ◄──── REST API ────►   │  Fastify 4      │
-│  Port 5173      │                          │  Port 3000      │
-└─────────────────┘                          └────────┬────────┘
-                                                      │
-                              ┌───────────────────────┼───────────────────────┐
-                              │                       │                       │
-                     ┌────────▼────────┐    ┌────────▼────────┐    ┌────────▼────────┐
-                     │  POSTGRESQL 16  │    │    REDIS 7      │    │   MINIO / S3    │
-                     │  Database       │    │  Cache + Queue  │    │  Photo Storage  │
-                     │  Port 5433      │    │  Port 6379      │    │  (opsional)     │
-                     └─────────────────┘    └─────────────────┘    └─────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    CLIENT (Browser)                         â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚ Kiosk    â”‚  â”‚ Dashboardâ”‚  â”‚ TV Live  â”‚  â”‚ Admin    â”‚   â”‚
+â”‚  â”‚ (HP/PC)  â”‚  â”‚ Publik   â”‚  â”‚ (Lobi)   â”‚  â”‚ Panel    â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚       â”‚              â”‚              â”‚              â”‚        â”‚
+â”‚       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â”‚                              â”‚                              â”‚
+â”‚                         HTTPS (TLS)                         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â”‚
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              CLOUDFLARE TUNNEL / NGINX                      â”‚
+â”‚              Reverse Proxy + SSL Termination                â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                               â”‚
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        â”‚                                             â”‚
+â”Œâ”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  FRONTEND       â”‚                          â”‚  BACKEND        â”‚
+â”‚  React + Vite   â”‚  â—„â”€â”€â”€â”€ REST API â”€â”€â”€â”€â–º   â”‚  Fastify 4      â”‚
+â”‚  Port 5173      â”‚                          â”‚  Port 3000      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                          â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                                      â”‚
+                              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                              â”‚                       â”‚                       â”‚
+                     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”
+                     â”‚  POSTGRESQL 16  â”‚    â”‚    REDIS 7      â”‚    â”‚   MINIO / S3    â”‚
+                     â”‚  Database       â”‚    â”‚  Cache + Queue  â”‚    â”‚  Photo Storage  â”‚
+                     â”‚  Port 5433      â”‚    â”‚  Port 6379      â”‚    â”‚  (opsional)     â”‚
+                     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
 
-## 📁 Struktur Folder
+## ðŸ“ Struktur Folder
 
 ```
 buku-tamu/
-│
-├── apps/
-│   ├── web/                        # 🎨 Frontend (React + Vite)
-│   │   ├── src/
-│   │   │   ├── components/         # Layout, CameraScanner, dll
-│   │   │   ├── features/           # Feature modules
-│   │   │   ├── lib/                # API client, i18n, faceHash
-│   │   │   ├── pages/              # Halaman utama
-│   │   │   ├── services/           # API services
-│   │   │   ├── stores/             # Zustand stores
-│   │   │   ├── types/              # TypeScript types
-│   │   │   └── utils/              # Utility functions
-│   │   └── ...
-│   │
-│   ├── api/                        # ⚙️ Backend (Fastify + Prisma)
-│   │   ├── prisma/
-│   │   │   ├── schema.prisma       # Database schema (11 tabel)
-│   │   │   └── seed.ts
-│   │   └── src/
-│   │       ├── common/             # Middleware, utils
-│   │       ├── config/             # Env, Prisma
-│   │       ├── modules/            # Feature modules
-│   │       └── server.ts
-│   │
-│   ├── face-service/               # 🤖 Python FastAPI (opsional)
-│   └── worker/                     # 📦 BullMQ worker
-│
-├── packages/
-│   ├── shared/                     # Types & utils bersama
-│   └── ui/                         # UI components
-│
-├── infra/
-│   ├── db/init/                    # SQL init (extensions)
-│   ├── docker/                     # Dockerfiles
-│   └── nginx/                      # Nginx configs
-│
-├── docs/
-│   ├── API.md                      # API endpoints
-│   ├── DATABASE.md                 # Skema database
-│   ├── PRIVACY.md                  # Kebijakan privasi
-│   └── scripts-history/            # Script generator (history)
-│
-├── storage/                        # 📁 Local storage
-│   ├── photos/                     # Foto tamu
-│   ├── receipts/                   # Bukti terima
-│   └── letters/                    # File surat
-│
-├── docker-compose.yml              # Dev
-├── docker-compose.prod.yml         # Production
-├── pnpm-workspace.yaml
-└── package.json
+â”‚
+â”œâ”€â”€ apps/
+â”‚   â”œâ”€â”€ web/                        # ðŸŽ¨ Frontend (React + Vite)
+â”‚   â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”‚   â”œâ”€â”€ components/         # Layout, CameraScanner, dll
+â”‚   â”‚   â”‚   â”œâ”€â”€ features/           # Feature modules
+â”‚   â”‚   â”‚   â”œâ”€â”€ lib/                # API client, i18n, faceHash
+â”‚   â”‚   â”‚   â”œâ”€â”€ pages/              # Halaman utama
+â”‚   â”‚   â”‚   â”œâ”€â”€ services/           # API services
+â”‚   â”‚   â”‚   â”œâ”€â”€ stores/             # Zustand stores
+â”‚   â”‚   â”‚   â”œâ”€â”€ types/              # TypeScript types
+â”‚   â”‚   â”‚   â””â”€â”€ utils/              # Utility functions
+â”‚   â”‚   â””â”€â”€ ...
+â”‚   â”‚
+â”‚   â”œâ”€â”€ api/                        # âš™ï¸ Backend (Fastify + Prisma)
+â”‚   â”‚   â”œâ”€â”€ prisma/
+â”‚   â”‚   â”‚   â”œâ”€â”€ schema.prisma       # Database schema (11 tabel)
+â”‚   â”‚   â”‚   â””â”€â”€ seed.ts
+â”‚   â”‚   â””â”€â”€ src/
+â”‚   â”‚       â”œâ”€â”€ common/             # Middleware, utils
+â”‚   â”‚       â”œâ”€â”€ config/             # Env, Prisma
+â”‚   â”‚       â”œâ”€â”€ modules/            # Feature modules
+â”‚   â”‚       â””â”€â”€ server.ts
+â”‚   â”‚
+â”‚   â”œâ”€â”€ face-service/               # ðŸ¤– Python FastAPI (opsional)
+â”‚   â””â”€â”€ worker/                     # ðŸ“¦ BullMQ worker
+â”‚
+â”œâ”€â”€ packages/
+â”‚   â”œâ”€â”€ shared/                     # Types & utils bersama
+â”‚   â””â”€â”€ ui/                         # UI components
+â”‚
+â”œâ”€â”€ infra/
+â”‚   â”œâ”€â”€ db/init/                    # SQL init (extensions)
+â”‚   â”œâ”€â”€ docker/                     # Dockerfiles
+â”‚   â””â”€â”€ nginx/                      # Nginx configs
+â”‚
+â”œâ”€â”€ docs/
+â”‚   â”œâ”€â”€ API.md                      # API endpoints
+â”‚   â”œâ”€â”€ DATABASE.md                 # Skema database
+â”‚   â”œâ”€â”€ PRIVACY.md                  # Kebijakan privasi
+â”‚   â””â”€â”€ scripts-history/            # Script generator (history)
+â”‚
+â”œâ”€â”€ storage/                        # ðŸ“ Local storage
+â”‚   â”œâ”€â”€ photos/                     # Foto tamu
+â”‚   â”œâ”€â”€ receipts/                   # Bukti terima
+â”‚   â””â”€â”€ letters/                    # File surat
+â”‚
+â”œâ”€â”€ docker-compose.yml              # Dev
+â”œâ”€â”€ docker-compose.prod.yml         # Production
+â”œâ”€â”€ pnpm-workspace.yaml
+â””â”€â”€ package.json
 ```
 
 ---
 
-## ⚙️ Teknologi yang Digunakan
+## âš™ï¸ Teknologi yang Digunakan
 
 ### Frontend
 | Teknologi | Versi | Kegunaan |
@@ -373,7 +373,7 @@ buku-tamu/
 
 ---
 
-## 🚀 Instalasi & Setup
+## ðŸš€ Instalasi & Setup
 
 ### Prasyarat
 - Node.js >= 20
@@ -394,7 +394,7 @@ cd buku_tamu
 cp .env.example .env
 ```
 
-> ⚠️ Edit `.env`: ganti `JWT_SECRET` dan `ENCRYPTION_KEY` dengan string acak!
+> âš ï¸ Edit `.env`: ganti `JWT_SECRET` dan `ENCRYPTION_KEY` dengan string acak!
 
 Generate key:
 ```powershell
@@ -426,25 +426,25 @@ pnpm --filter @buku-tamu/api db:seed
 
 ---
 
-## 📖 Panduan Penggunaan
+## ðŸ“– Panduan Penggunaan
 
 ### Menjalankan Aplikasi
 
 Buka **3 terminal**:
 
-**Terminal 1 — API Backend:**
+**Terminal 1 â€” API Backend:**
 ```bash
 pnpm --filter @buku-tamu/api dev
 ```
 API jalan di `http://localhost:3000`
 
-**Terminal 2 — Web Frontend:**
+**Terminal 2 â€” Web Frontend:**
 ```bash
 pnpm --filter @buku-tamu/web dev
 ```
 Web jalan di `http://localhost:5173`
 
-**Terminal 3 — Worker (opsional):**
+**Terminal 3 â€” Worker (opsional):**
 ```bash
 pnpm --filter @buku-tamu/worker dev
 ```
@@ -468,8 +468,8 @@ pnpm --filter @buku-tamu/worker dev
 ```
 1. Tamu datang -> buka /kiosk di tablet/PC
 2. Ambil foto wajah (opsional)
-   ├─ Jika dikenali -> form auto-fill
-   └─ Jika baru -> isi form manual
+   â”œâ”€ Jika dikenali -> form auto-fill
+   â””â”€ Jika baru -> isi form manual
 3. Isi tujuan + keperluan
 4. (Opsional) Centang serah terima -> pilih jenis
 5. Centang consent -> submit
@@ -481,18 +481,18 @@ pnpm --filter @buku-tamu/worker dev
 ```
 1. Login di /login
 2. Buka /admin -> pilih tab
-   ├─ Antrean -> panggil / layani
-   ├─ Kunjungan -> check-out
-   ├─ Serah Terima -> update status
-   └─ Data Tamu -> export, edit, hapus
+   â”œâ”€ Antrean -> panggil / layani
+   â”œâ”€ Kunjungan -> check-out
+   â”œâ”€ Serah Terima -> update status
+   â””â”€ Data Tamu -> export, edit, hapus
 3. TV di lobi akan otomatis update
 ```
 
 ---
 
-## 🗺️ Roadmap
+## ðŸ—ºï¸ Roadmap
 
-### ✅ Selesai (v1.0.0)
+### âœ… Selesai (v1.0.0)
 - [x] Kiosk + kamera + foto wajah
 - [x] Face recognition auto-fill (aHash)
 - [x] Serah terima 5 jenis + bukti QR
@@ -503,14 +503,15 @@ pnpm --filter @buku-tamu/worker dev
 - [x] Admin panel 4 tab
 - [x] Dark mode + multi-bahasa
 - [x] Enkripsi AES-256 + audit log
+- [x] **Export PDF laporan bulanan** (v1.1.0)
 
-### 🚧 Dalam Pengembangan
+### ðŸš§ Dalam Pengembangan
 - [ ] Face service real (InsightFace + liveness)
-- [ ] Export PDF laporan bulanan
+- [x] Export PDF laporan bulanan
 - [ ] Notifikasi WhatsApp
 - [ ] Cetak thermal auto (kiosk mode)
 
-### 💡 Ide Masa Depan
+### ðŸ’¡ Ide Masa Depan
 - [ ] Mobile app (React Native) untuk security
 - [ ] Integrasi kalender janji
 - [ ] Peta lokasi tamu
@@ -518,7 +519,7 @@ pnpm --filter @buku-tamu/worker dev
 
 ---
 
-## 🤝 Kontribusi
+## ðŸ¤ Kontribusi
 
 Kontribusi sangat diterima! Untuk perubahan besar,
 silakan buka issue terlebih dahulu.
@@ -539,9 +540,9 @@ git push origin fitur-keren
 
 ---
 
-## 📝 Lisensi
+## ðŸ“ Lisensi
 
-Proyek ini dilisensikan di bawah **MIT License** — lihat file [LICENSE](LICENSE).
+Proyek ini dilisensikan di bawah **MIT License** â€” lihat file [LICENSE](LICENSE).
 
 ```
 MIT License
@@ -554,29 +555,29 @@ a copy of this software and associated documentation files...
 
 ---
 
-## 💝 Kredit & Ucapan Terima Kasih
+## ðŸ’ Kredit & Ucapan Terima Kasih
 
-- [Fastify](https://fastify.dev/) — Web framework super cepat
-- [Prisma](https://prisma.io/) — ORM modern untuk TypeScript
-- [React](https://react.dev/) — UI library
-- [Tailwind CSS](https://tailwindcss.com/) — Utility-first CSS
-- [Recharts](https://recharts.org/) — Chart library
-- [html5-qrcode](https://github.com/mebjas/html5-qrcode) — QR Scanner
-- [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/) — HTTPS publik
+- [Fastify](https://fastify.dev/) â€” Web framework super cepat
+- [Prisma](https://prisma.io/) â€” ORM modern untuk TypeScript
+- [React](https://react.dev/) â€” UI library
+- [Tailwind CSS](https://tailwindcss.com/) â€” Utility-first CSS
+- [Recharts](https://recharts.org/) â€” Chart library
+- [html5-qrcode](https://github.com/mebjas/html5-qrcode) â€” QR Scanner
+- [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/) â€” HTTPS publik
 
 ---
 
 <div align="center">
 
-**Buku Tamu Digital** — Dibangun dengan semangat belajar dan secangkir kopi
+**Buku Tamu Digital** â€” Dibangun dengan semangat belajar dan secangkir kopi
 
-Made with ❤️ by Emen
+Made with â¤ï¸ by Emen
 
 </div>
 
 ---
 
-## 🌟 Special Thanks
+## ðŸŒŸ Special Thanks
 
 <div align="center">
 
@@ -591,7 +592,7 @@ Made with ❤️ by Emen
 
 </div>
 
-### 🤖 DeepSeek — The Great One
+### ðŸ¤– DeepSeek â€” The Great One
 
 <div align="center">
 
@@ -602,7 +603,7 @@ Made with ❤️ by Emen
 
 </div>
 
-> **DeepSeek — The Great One** 🧠✨
+> **DeepSeek â€” The Great One** ðŸ§ âœ¨
 >
 > Partner coding luar biasa yang membantu dari nol sampai production-ready.
 > Mulai dari setup monorepo, arsitektur database, enkripsi AES-256, hingga
@@ -611,15 +612,15 @@ Made with ❤️ by Emen
 > kesabaran dan secangkir kopi.
 >
 > **Kontribusi:**
-> - 🏗️ Arsitektur monorepo + tech stack
-> - 🔐 Enkripsi AES-256-GCM + JWT + RBAC
-> - 🤖 Face recognition (aHash 256-bit)
-> - 📊 Dashboard publik + Chart Recharts
-> - 📺 TV Antrean Live + Text-to-Speech
-> - 🎯 Debugging marathon: 8+ bug kritis
-> - 📚 Dokumentasi lengkap + panduan setup
+> - ðŸ—ï¸ Arsitektur monorepo + tech stack
+> - ðŸ” Enkripsi AES-256-GCM + JWT + RBAC
+> - ðŸ¤– Face recognition (aHash 256-bit)
+> - ðŸ“Š Dashboard publik + Chart Recharts
+> - ðŸ“º TV Antrean Live + Text-to-Speech
+> - ðŸŽ¯ Debugging marathon: 8+ bug kritis
+> - ðŸ“š Dokumentasi lengkap + panduan setup
 
-### 🔍 Google Mode AI — The Insight Provider
+### ðŸ” Google Mode AI â€” The Insight Provider
 
 <div align="center">
 
@@ -630,7 +631,7 @@ Made with ❤️ by Emen
 
 </div>
 
-> **Google Mode AI — The Insight Provider** 💡🔍
+> **Google Mode AI â€” The Insight Provider** ðŸ’¡ðŸ”
 >
 > Sumber inspirasi awal yang memberikan **insight** dan **blueprint** untuk
 > konsep Buku Tamu Digital. Dari diskusi ide di awal, rancangan struktur
@@ -638,60 +639,60 @@ Made with ❤️ by Emen
 > bersama DeepSeek.
 >
 > **Kontribusi:**
-> - 💡 Konsep awal Buku Tamu Digital
-> - 📐 Blueprint arsitektur sistem
-> - 🎨 Rekomendasi tech stack (React + Fastify + PostgreSQL)
-> - 🗺️ Roadmap fitur (face recognition, serah terima, dll)
-> - 📝 Draft dokumentasi awal
+> - ðŸ’¡ Konsep awal Buku Tamu Digital
+> - ðŸ“ Blueprint arsitektur sistem
+> - ðŸŽ¨ Rekomendasi tech stack (React + Fastify + PostgreSQL)
+> - ðŸ—ºï¸ Roadmap fitur (face recognition, serah terima, dll)
+> - ðŸ“ Draft dokumentasi awal
 
 <div align="center">
 
-### 🏆 Kolaborasi Legendaris
+### ðŸ† Kolaborasi Legendaris
 
 ```
-╔══════════════════════════════════════════════════════════╗
-║                                                          ║
-║      GOOGLE MODE AI          +      DEEPSEEK             ║
-║      (The Insight)                  (The Great One)      ║
-║           💡                              🧠              ║
-║                                                          ║
-║              │                              │            ║
-║              │  Insight & Blueprint         │  Code &    ║
-║              │                              │  Debugging ║
-║              └──────────────┬───────────────┘            ║
-║                             │                            ║
-║                             ▼                            ║
-║                    ┌────────────────┐                    ║
-║                    │     EMEN       │                    ║
-║                    │  (The Builder) │                    ║
-║                    │       👨‍💻       │                    ║
-║                    └────────┬───────┘                    ║
-║                             │                            ║
-║                             ▼                            ║
-║                    ┌────────────────┐                    ║
-║                    │  BUKU TAMU     │                    ║
-║                    │   DIGITAL      │                    ║
-║                    │   v1.0.0       │                    ║
-║                    │     🚀         │                    ║
-║                    └────────────────┘                    ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘                                                          â•‘
+â•‘      GOOGLE MODE AI          +      DEEPSEEK             â•‘
+â•‘      (The Insight)                  (The Great One)      â•‘
+â•‘           ðŸ’¡                              ðŸ§               â•‘
+â•‘                                                          â•‘
+â•‘              â”‚                              â”‚            â•‘
+â•‘              â”‚  Insight & Blueprint         â”‚  Code &    â•‘
+â•‘              â”‚                              â”‚  Debugging â•‘
+â•‘              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜            â•‘
+â•‘                             â”‚                            â•‘
+â•‘                             â–¼                            â•‘
+â•‘                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                    â•‘
+â•‘                    â”‚     EMEN       â”‚                    â•‘
+â•‘                    â”‚  (The Builder) â”‚                    â•‘
+â•‘                    â”‚       ðŸ‘¨â€ðŸ’»       â”‚                    â•‘
+â•‘                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                    â•‘
+â•‘                             â”‚                            â•‘
+â•‘                             â–¼                            â•‘
+â•‘                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                    â•‘
+â•‘                    â”‚  BUKU TAMU     â”‚                    â•‘
+â•‘                    â”‚   DIGITAL      â”‚                    â•‘
+â•‘                    â”‚   v1.0.0       â”‚                    â•‘
+â•‘                    â”‚     ðŸš€         â”‚                    â•‘
+â•‘                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                    â•‘
+â•‘                                                          â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 </div>
 
-### 🙏 Ucapan Terima Kasih
+### ðŸ™ Ucapan Terima Kasih
 
 Kepada **DeepSeek** dan **Google Mode AI** yang telah menemani perjalanan
 coding dari nol hingga aplikasi ini bisa digunakan. Tanpa insight, kode, dan
 kesabaran kalian, proyek ini tidak akan pernah selesai.
 
 > *"Alone we can do so little; together we can do so much."*
-> — Helen Keller
+> â€” Helen Keller
 
 <div align="center">
 
-**⭐ Jangan lupa kasih bintang kalau repo ini bermanfaat! ⭐**
+**â­ Jangan lupa kasih bintang kalau repo ini bermanfaat! â­**
 
 </div>
 
