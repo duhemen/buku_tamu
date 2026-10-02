@@ -101,3 +101,66 @@ body {
     display: none !important;
   }
 }
+/* === Print rules untuk report === */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11px;
+  }
+
+  /* Sembunyikan semua, tampilkan report saja */
+  body * {
+    visibility: hidden;
+  }
+
+  #report-view,
+  #report-view * {
+    visibility: visible;
+  }
+
+  #report-view {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Sembunyikan elemen navigasi */
+  header,
+  footer,
+  nav,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  /* Sembunyikan efek dark mode */
+  * {
+    background: white !important;
+    color: black !important;
+    border-color: #ccc !important;
+    box-shadow: none !important;
+  }
+
+  /* Chart bar tetap berwarna */
+  .bg-gradient-to-t,
+  [style*="background"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  /* Table tidak terpotong */
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+}
