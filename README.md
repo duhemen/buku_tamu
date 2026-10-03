@@ -4,7 +4,7 @@
 > antrean otomatis, kartu QR/barcode, dashboard publik, dan TV antrean live.
 
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Node](https://img.shields.io/badge/node-%3E%3D20-339933)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9-F69220)
