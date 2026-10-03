@@ -1,12 +1,18 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import CameraScanner from '@/components/CameraScanner';
+import OperatingClosedScreen from '@/components/OperatingClosedScreen';
+import CutOffWarningBanner from '@/components/CutOffWarningBanner';
 import {
   publicCheckIn,
   publicFaceMatch,
   FaceGuest,
   HandoverType,
 } from '@/services/public.service';
+import {
+  getPublicOperatingStatus,
+  OperatingStatusResult,
+} from '@/services/operating.service';
 
 interface FormState {
   fullName: string;
@@ -63,7 +69,32 @@ export default function KioskPage() {
   const [matching, setMatching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [opStatus, setOpStatus] = useState<OperatingStatusResult | null>(null);
+  const [checkingStatus, setCheckingStatus] = useState(true);
   const navigate = useNavigate();
+
+  // ============================================================
+  // Cek status operasional saat mount + auto-refresh 60 detik
+  // ============================================================
+  const checkOperatingStatus = async () => {
+    try {
+      const s = await getPublicOperatingStatus();
+      setOpStatus(s);
+    } catch (e) {
+      console.error('Operating status error:', e);
+      // Kalau error, jangan blokir â€” izinkan form muncul
+      setOpStatus(null);
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    checkOperatingStatus();
+    // Refresh tiap 30 detik (untuk countdown akurat), 60 detik normal
+    const t = setInterval(checkOperatingStatus, 30000);
+    return () => clearInterval(t);
+  }, []);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -161,11 +192,47 @@ export default function KioskPage() {
 
       navigate('/kartu/' + result.visitId);
     } catch (e) {
-      setError((e as Error).message);
+      const err = e as Error & { statusCode?: number };
+      setError(err.message);
+      // Kalau ditolak karena jam operasional, refresh status
+      if (err.message.includes('operating') || err.message.includes('tutup') || err.message.includes('berakhir')) {
+        checkOperatingStatus();
+      }
     } finally {
       setSubmitting(false);
     }
   };
+
+  // ============================================================
+  // Loading Screen
+  // ============================================================
+  if (checkingStatus) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950">
+        <div className="text-center">
+          <div className="inline-block w-10 h-10 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mb-3" />
+          <div className="text-slate-500 dark:text-slate-400 text-sm">
+            Memeriksa jam operasional...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // Kalau kantor tutup - tampilkan layar khusus
+  // ============================================================
+  if (opStatus && !opStatus.isOpen) {
+    return <OperatingClosedScreen status={opStatus} />;
+  }
+
+  // ============================================================
+  // Kantor buka - tampilkan form
+  // ============================================================
+  const showCutOffWarning =
+    opStatus?.minutesUntilCutOff !== undefined &&
+    opStatus.minutesUntilCutOff <= 15 &&
+    opStatus.minutesUntilCutOff > 0;
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950">
@@ -189,6 +256,11 @@ export default function KioskPage() {
       </header>
 
       <div className="max-w-5xl mx-auto p-6">
+        {/* Warning Cut-off (dengan countdown + suara) */}
+        {showCutOffWarning && opStatus && (
+          <CutOffWarningBanner status={opStatus} />
+        )}
+
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">

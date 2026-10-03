@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { getPublicOperatingStatus, OperatingStatusResult } from '@/services/operating.service';
 
 interface TVData {
   current: {
@@ -16,6 +17,7 @@ interface TVData {
 export default function TVQueuePage() {
   const [data, setData] = useState<TVData | null>(null);
   const [now, setNow] = useState(new Date());
+  const [opStatus, setOpStatus] = useState<OperatingStatusResult | null>(null);
   const lastCalledRef = useRef<string | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -31,13 +33,17 @@ export default function TVQueuePage() {
   };
 
   useEffect(() => {
-    fetchData();
-    const t = setInterval(fetchData, 5000);
-    const tick = setInterval(() => setNow(new Date()), 1000);
-    return () => {
-      clearInterval(t);
-      clearInterval(tick);
+    const fetchStatus = async () => {
+      try {
+        const s = await getPublicOperatingStatus();
+        setOpStatus(s);
+      } catch (e) {
+        console.error('Operating status error:', e);
+      }
     };
+    fetchStatus();
+    const t = setInterval(fetchStatus, 30000);
+    return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
@@ -109,6 +115,89 @@ export default function TVQueuePage() {
           <div className="text-4xl font-bold tabular-nums tracking-wider">{timeStr}</div>
         </div>
       </div>
+
+            {/* Operating Hours Bar */}
+      {opStatus && (
+        <div
+          className={
+            'px-12 py-3 flex items-center gap-6 border-b border-white/10 text-sm ' +
+            (opStatus.isOpen
+              ? 'bg-emerald-500/10'
+              : opStatus.status === 'CUT_OFF'
+              ? 'bg-amber-500/10'
+              : 'bg-rose-500/10')
+          }
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className={
+                'w-3 h-3 rounded-full animate-pulse ' +
+                (opStatus.isOpen
+                  ? 'bg-emerald-400'
+                  : opStatus.status === 'CUT_OFF'
+                  ? 'bg-amber-400'
+                  : 'bg-rose-400')
+              }
+            />
+            <span className="text-white/60 uppercase tracking-wider text-xs">
+              Jam Operasional
+            </span>
+          </div>
+
+          <span
+            className={
+              'font-bold ' +
+              (opStatus.isOpen
+                ? 'text-emerald-300'
+                : opStatus.status === 'CUT_OFF'
+                ? 'text-amber-300'
+                : 'text-rose-300')
+            }
+          >
+            {opStatus.isOpen ? 'BUKA' : opStatus.status}
+          </span>
+
+          {opStatus.todaySchedule && (
+            <>
+              <span className="text-white/40">|</span>
+              <span className="text-white/70">
+                {opStatus.todaySchedule.openTime} - {opStatus.todaySchedule.closeTime}
+              </span>
+              <span className="text-white/40">|</span>
+              <span className="text-white/70">
+                Cut-off: <strong className="text-white">{opStatus.todaySchedule.cutOffTime}</strong>
+              </span>
+            </>
+          )}
+
+          {opStatus.minutesUntilCutOff !== undefined && opStatus.minutesUntilCutOff > 0 && (
+            <>
+              <span className="text-white/40">|</span>
+              <span className={opStatus.minutesUntilCutOff <= 5 ? 'text-rose-300 font-bold' : 'text-white/70'}>
+                Sisa: {opStatus.minutesUntilCutOff} menit
+              </span>
+            </>
+          )}
+
+          {opStatus.nextOpenTime && !opStatus.isOpen && (
+            <>
+              <span className="text-white/40">|</span>
+              <span className="text-white/70">
+                Buka: <strong className="text-white">{opStatus.nextOpenTime}</strong>
+              </span>
+            </>
+          )}
+
+          {opStatus.overrideReason && (
+            <>
+              <span className="text-white/40">|</span>
+              <span className="text-blue-300 text-xs">
+                {opStatus.overrideReason}
+              </span>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-8 p-12 h-[calc(100vh-120px)]">
         <div className="col-span-2 flex flex-col">

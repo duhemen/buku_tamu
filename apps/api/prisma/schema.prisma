@@ -205,6 +205,57 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model OperatingHours {
+  id         String    @id @default(cuid())
+  dayOfWeek  DayOfWeek @unique
+  isOpen     Boolean   @default(true)
+  openTime   String    // format "HH:MM" contoh "08:00"
+  cutOffTime String    // format "HH:MM" contoh "15:30"
+  closeTime  String    // format "HH:MM" contoh "16:00"
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("operating_hours")
+}
+
+model Holiday {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  name      String
+  isActive  Boolean  @default(true)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@map("holidays")
+}
+
+model TimeOverride {
+  id          String   @id @default(cuid())
+  date        DateTime @db.Date
+  isOpen      Boolean  @default(true)
+  openTime    String?
+  closeTime   String?
+  reason      String
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  @@index([date])
+  @@map("time_overrides")
+}
+
 model Setting {
   key   String @id
   value Json

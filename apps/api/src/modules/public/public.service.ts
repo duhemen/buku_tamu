@@ -2,6 +2,7 @@ import { prisma } from '../../config/prisma.js';
 import { encrypt } from '../../common/utils/crypto.js';
 import { enrollFace, recognizeFace } from '../face/face.service.js';
 import { nextQueueNumber, todayDateForDb } from '../../common/utils/queueNumber.js';
+import { getOperatingStatus } from '../operating/operating.service.js';
 import type { PublicCheckInInput } from './public.schema.js';
 
 export interface PublicCheckInResult {
@@ -14,15 +15,46 @@ export interface PublicCheckInResult {
   handoverCode?: string | null;
 }
 
+export class OperatingClosedError extends Error {
+  status: string;
+  nextOpenTime?: string;
+  constructor(message: string, status: string, nextOpenTime?: string) {
+    super(message);
+    this.name = 'OperatingClosedError';
+    this.status = status;
+    this.nextOpenTime = nextOpenTime;
+  }
+}
+
 export async function publicCheckIn(
   data: PublicCheckInInput
 ): Promise<PublicCheckInResult> {
-  // 1. Cari atau buat guest
+  // ============================================================
+  // 1. Cek jam operasional DULU
+  // ============================================================
+  const operatingStatus = await getOperatingStatus();
+
+  if (!operatingStatus.isOpen) {
+    const messages: Record<string, string> = {
+      CLOSED: operatingStatus.reason ?? 'Kantor sedang tutup',
+      CUT_OFF: operatingStatus.reason ?? 'Waktu registrasi tamu sudah berakhir',
+      HOLIDAY: operatingStatus.reason ?? 'Hari ini kantor libur',
+      OVERRIDE: operatingStatus.reason ?? 'Kantor tutup berdasarkan keputusan admin',
+    };
+    throw new OperatingClosedError(
+      messages[operatingStatus.status] ?? 'Registrasi tidak dibuka',
+      operatingStatus.status,
+      operatingStatus.nextOpenTime
+    );
+  }
+
+  // ============================================================
+  // 2. Cari atau buat guest
+  // ============================================================
   let guestId: string;
   let isReturning = false;
 
   if (data.guest.matchedGuestId) {
-    // Tamu lama — pakai guestId yang sudah ada
     const existing = await prisma.guest.findUnique({
       where: { id: data.guest.matchedGuestId },
     });
@@ -30,17 +62,17 @@ export async function publicCheckIn(
       guestId = existing.id;
       isReturning = true;
     } else {
-      // Fallback — buat baru kalau tidak ditemukan
       const created = await createNewGuest(data.guest);
       guestId = created.id;
     }
   } else {
-    // Tamu baru
     const created = await createNewGuest(data.guest);
     guestId = created.id;
   }
 
-  // 2. Transaksi: buat visit + queue + receipt + handover
+  // ============================================================
+  // 3. Transaksi: buat visit + queue + receipt + handover
+  // ============================================================
   const result = await prisma.$transaction(async (tx) => {
     const visit = await tx.visit.create({
       data: {
@@ -116,7 +148,9 @@ export async function publicCheckIn(
     };
   });
 
-  // 3. Auto-enroll face kalau ada foto + tamu baru (di luar transaksi)
+  // ============================================================
+  // 4. Auto-enroll face kalau ada foto + tamu baru
+  // ============================================================
   if (data.guest.faceImage && !isReturning) {
     try {
       const enroll = await enrollFace(data.guest.faceImage, guestId);

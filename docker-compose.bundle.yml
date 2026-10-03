@@ -1,0 +1,136 @@
+# ============================================================
+# Buku Tamu Digital - Docker Bundle
+# Untuk distribusi: enduser tinggal klik start.bat
+# ============================================================
+version: "3.9"
+
+services:
+  # ============================================================
+  # PostgreSQL
+  # ============================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: bt-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: buku_tamu
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: buku_tamu
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./infra/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buku_tamu"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - buku-tamu-net
+
+  # ============================================================
+  # Redis
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: bt-redis
+    restart: unless-stopped
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - buku-tamu-net
+
+  # ============================================================
+  # API Backend (Node.js + Fastify)
+  # ============================================================
+  api:
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    image: buku-tamu-api:latest
+    container_name: bt-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      face:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://buku_tamu:${POSTGRES_PASSWORD}@postgres:5432/buku_tamu
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      FACE_SERVICE_URL: http://face:8000
+      FACE_THRESHOLD: "0.5"
+      TZ: Asia/Jakarta
+      CORS_ORIGIN: "*"
+    networks:
+      - buku-tamu-net
+
+  # ============================================================
+  # Web Frontend (React + Nginx)
+  # ============================================================
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+    image: buku-tamu-web:latest
+    container_name: bt-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+    networks:
+      - buku-tamu-net
+
+  # ============================================================
+  # Face Service (Python + InsightFace)
+  # ============================================================
+  face:
+    build:
+      context: .
+      dockerfile: infra/docker/face.Dockerfile
+    image: buku-tamu-face:latest
+    container_name: bt-face
+    restart: unless-stopped
+    volumes:
+      # Cache model InsightFace (~280 MB), auto-download pertama kali
+      - ./data/insightface-models:/root/.insightface
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+    networks:
+      - buku-tamu-net
+
+  # ============================================================
+  # Cloudflare Tunnel
+  # ============================================================
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: bt-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - web
+      - api
+    networks:
+      - buku-tamu-net
+
+networks:
+  buku-tamu-net:
+    driver: bridge

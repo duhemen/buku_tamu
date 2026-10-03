@@ -1,6 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { publicCheckInSchema, publicFaceMatchSchema } from './public.schema.js';
-import { publicCheckIn, publicFaceMatch } from './public.service.js';
+import {
+  publicCheckIn,
+  publicFaceMatch,
+  OperatingClosedError,
+} from './public.service.js';
 
 /**
  * Endpoint PUBLIK (tanpa auth).
@@ -8,7 +12,6 @@ import { publicCheckIn, publicFaceMatch } from './public.service.js';
  * Untuk kiosk tamu, tidak boleh mengakses data.
  */
 export async function publicRoutes(app: FastifyInstance) {
-  // Check-in tamu (create guest + visit + queue + handover)
   app.post(
     '/check-in',
     {
@@ -23,24 +26,34 @@ export async function publicRoutes(app: FastifyInstance) {
       const parsed = publicCheckInSchema.safeParse(req.body);
       if (!parsed.success) {
         return reply.code(400).send({
-          error: 'Invalid input',
+          error: 'INVALID_INPUT',
+          message: 'Data tidak lengkap atau tidak valid',
           details: parsed.error.flatten(),
         });
       }
+
       try {
         const result = await publicCheckIn(parsed.data);
         return reply.code(201).send(result);
       } catch (e) {
+        // Tangani khusus error jam operasional
+        if (e instanceof OperatingClosedError) {
+          return reply.code(403).send({
+            error: 'OPERATING_CLOSED',
+            status: e.status,
+            message: e.message,
+            nextOpenTime: e.nextOpenTime,
+          });
+        }
         app.log.error(e);
         return reply.code(500).send({
-          error: 'Check-in gagal',
+          error: 'CHECKIN_FAILED',
           message: (e as Error).message,
         });
       }
     }
   );
 
-  // Face match untuk auto-fill tamu lama
   app.post(
     '/face/match',
     {
@@ -54,14 +67,14 @@ export async function publicRoutes(app: FastifyInstance) {
     async (req, reply) => {
       const parsed = publicFaceMatchSchema.safeParse(req.body);
       if (!parsed.success) {
-        return reply.code(400).send({ error: 'Invalid input' });
+        return reply.code(400).send({ error: 'INVALID_INPUT' });
       }
       try {
         return await publicFaceMatch(parsed.data.image);
       } catch (e) {
         app.log.error(e);
         return reply.code(500).send({
-          error: 'Face match gagal',
+          error: 'FACE_MATCH_FAILED',
           message: (e as Error).message,
         });
       }
