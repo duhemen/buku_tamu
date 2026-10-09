@@ -12,6 +12,7 @@ export const createOfficerSchema = z.object({
   position: z.string().min(1).max(100),
   unit: z.string().max(100).optional().nullable(),
   room: z.string().max(200).optional().nullable(),
+  telegramChatId: z.string().max(50).optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
   order: z.number().int().min(0).max(999).optional(),
 });

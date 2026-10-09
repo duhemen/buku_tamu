@@ -105,7 +105,7 @@ export default function OfficersStatusPanel() {
       <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-brand-50 to-sky-50 dark:from-brand-950/30 dark:to-sky-950/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg">⭐</span>
+            <span className="text-lg">â­</span>
             <span className="font-bold text-slate-800 dark:text-slate-100">
               Status Petugas Hari Ini
             </span>
@@ -168,19 +168,19 @@ export default function OfficersStatusPanel() {
                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
                       {o.note && (
                         <span className="text-slate-600 dark:text-slate-400">
-                          📝 {o.note}
+                          ðŸ“ {o.note}
                         </span>
                       )}
                       {o.returnAt && (
                         <span className="text-slate-500 dark:text-slate-400">
-                          🕐 Kembali: {o.returnAt}
+                          ðŸ• Kembali: {o.returnAt}
                         </span>
                       )}
                     </div>
                   )}
                   {o.room && (
                     <div className="mt-0.5 text-xs text-slate-400">
-                      📍 {o.room}
+                      ðŸ“ {o.room}
                     </div>
                   )}
                 </div>

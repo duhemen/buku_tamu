@@ -3,6 +3,7 @@ import { encrypt } from '../../common/utils/crypto.js';
 import { enrollFace, recognizeFace } from '../face/face.service.js';
 import { nextQueueNumber, todayDateForDb } from '../../common/utils/queueNumber.js';
 import { getOperatingStatus } from '../operating/operating.service.js';
+import { notifyGuestArrival } from '../telegram/telegram.service.js';
 import type { PublicCheckInInput } from './public.schema.js';
 
 export interface PublicCheckInResult {
@@ -24,6 +25,62 @@ export class OperatingClosedError extends Error {
     this.status = status;
     this.nextOpenTime = nextOpenTime;
   }
+}
+
+// ============================================================
+// Helper: Cari petugas berdasarkan tujuan (destination)
+// ============================================================
+async function findOfficerByDestination(destination: string) {
+  // Strategy: cocokkan destination dengan position / unit petugas
+  // Contoh: destination "Bagian Umum" → petugas dengan unit "Umum"
+  // Fallback: ambil petugas POKJA / PPK pertama kalau tidak ada match
+  
+  const lowerDest = destination.toLowerCase();
+  
+  // Cari petugas yang posisinya mengandung kata kunci dari destination
+  const allOfficers = await prisma.officer.findMany({
+    where: { active: true, telegramChatId: { not: null } },
+  });
+  
+  // Match 1: cari officer dengan position/unit mengandung kata destination
+  for (const o of allOfficers) {
+    const positionMatch = o.position.toLowerCase();
+    const unitMatch = (o.unit ?? '').toLowerCase();
+    
+    if (
+      positionMatch.includes(lowerDest) ||
+      lowerDest.includes(positionMatch) ||
+      unitMatch.includes(lowerDest) ||
+      lowerDest.includes(unitMatch)
+    ) {
+      return o;
+    }
+  }
+  
+  // Match 2: cari berdasarkan kata kunci umum
+  const keywords: { key: string; match: string[] }[] = [
+    { key: 'umum', match: ['kasubbagtu', 'umum'] },
+    { key: 'keuangan', match: ['bendahara', 'keuangan'] },
+    { key: 'ppk', match: ['ppk'] },
+    { key: 'pokja', match: ['pokja'] },
+    { key: 'pengadaan', match: ['pokja', 'ppk'] },
+    { key: 'tender', match: ['pokja'] },
+    { key: 'lelang', match: ['pokja'] },
+    { key: 'pimpinan', match: ['kabalai'] },
+  ];
+  
+  for (const kw of keywords) {
+    if (lowerDest.includes(kw.key)) {
+      for (const o of allOfficers) {
+        const positionMatch = o.position.toLowerCase();
+        if (kw.match.some((m) => positionMatch.includes(m))) {
+          return o;
+        }
+      }
+    }
+  }
+  
+  return null;
 }
 
 export async function publicCheckIn(
@@ -160,6 +217,33 @@ export async function publicCheckIn(
     } catch (e) {
       console.error('[public-checkin] Enroll error:', e);
     }
+  }
+
+  // ============================================================
+  // Notifikasi Telegram ke petugas tujuan
+  // ============================================================
+  try {
+    const officer = await findOfficerByDestination(data.visit.destination);
+    if (officer?.telegramChatId) {
+      const handoverType = data.handover?.type ?? null;
+      await notifyGuestArrival({
+        chatId: officer.telegramChatId,
+        guestName: result.guestName,
+        guestCompany: data.guest.company ?? null,
+        purpose: data.visit.purpose,
+        destination: data.visit.destination,
+        queueNumber: result.queueNumber,
+        hasHandover: !!data.handover,
+        handoverType: handoverType,
+      });
+      console.log(
+        '[telegram] Notif sent to ' + officer.name + ' (' + officer.position + ')'
+      );
+    } else {
+      console.log('[telegram] Tidak ada petugas dengan chat ID untuk tujuan: ' + data.visit.destination);
+    }
+  } catch (e) {
+    console.error('[telegram] Gagal kirim notif:', e);
   }
 
   return {

@@ -157,7 +157,7 @@ function ConfirmTab() {
               Konfirmasi Status Petugas
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              📅 {formattedDate}
+              ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“... {formattedDate}
             </p>
             <p className="text-xs text-slate-400 mt-2">
               Konfirmasi ke masing-masing petugas, lalu input status hari ini.
@@ -175,7 +175,7 @@ function ConfirmTab() {
       {/* Success message */}
       {success && (
         <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 text-sm text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-          <span>✓</span>
+          <span>ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“</span>
           <span>Status berhasil disimpan! Kiosk & TV akan otomatis update.</span>
         </div>
       )}
@@ -237,9 +237,9 @@ function OfficerConfirmRow({
   onChange: (key: keyof DraftStatus, value: string) => void;
 }) {
   const statusButtons: { value: OfficerStatusType; label: string; color: string }[] = [
-    { value: 'AVAILABLE', label: '🟢 Tersedia', color: 'emerald' },
-    { value: 'BUSY', label: '🟡 Sibuk', color: 'amber' },
-    { value: 'ABSENT', label: '🔴 Tidak Ada', color: 'rose' },
+    { value: 'AVAILABLE', label: 'Tersedia', color: 'emerald' },
+    { value: 'BUSY', label: 'Sibuk', color: 'amber' },
+    { value: 'ABSENT', label: 'Tidak Ada', color: 'rose' },
   ];
 
   return (
@@ -259,7 +259,7 @@ function OfficerConfirmRow({
           </div>
           <div className="text-sm text-slate-500 dark:text-slate-400">
             {officer.position}
-            {officer.unit && ' · ' + officer.unit}
+            {officer.unit && ' Ãƒâ€šÂ· ' + officer.unit}
           </div>
         </div>
       </div>
@@ -417,7 +417,7 @@ function ManageTab() {
                 }
               >
                 <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-700 dark:text-brand-300 font-bold text-sm flex-shrink-0">
-                  {o.order || '·'}
+                  {o.order || 'Ãƒâ€šÂ·'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-slate-800 dark:text-slate-200 truncate">
@@ -425,8 +425,8 @@ function ManageTab() {
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
                     {o.position}
-                    {o.unit && ' · ' + o.unit}
-                    {o.room && ' · ' + o.room}
+                    {o.unit && ' Ãƒâ€šÂ· ' + o.unit}
+                    {o.room && ' Ãƒâ€šÂ· ' + o.room}
                   </div>
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
@@ -495,6 +495,7 @@ function OfficerFormModal({
     unit: officer?.unit ?? '',
     room: officer?.room ?? '',
     phone: officer?.phone ?? '',
+    telegramChatId: officer?.telegramChatId ?? '',
     order: officer?.order ?? 0,
   });
   const [saving, setSaving] = useState(false);
@@ -602,6 +603,21 @@ function OfficerFormModal({
               className={inputClass}
               placeholder="0811-2233-4455"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+              Telegram Chat ID
+            </label>
+            <input
+              value={form.telegramChatId}
+              onChange={(e) => setForm({ ...form, telegramChatId: e.target.value })}
+              className={inputClass}
+              placeholder="Contoh: 1073958159"
+            />
+            <p className="text-xs text-slate-400 mt-1">
+              Untuk notifikasi tamu. Kosongkan jika tidak perlu.
+            </p>
           </div>
         </div>
 

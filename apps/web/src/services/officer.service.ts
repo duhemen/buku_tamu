@@ -12,6 +12,7 @@ export interface Officer {
   unit?: string | null;
   room?: string | null;
   phone?: string | null;
+  telegramChatId?: string | null;
   order: number;
   active: boolean;
   createdAt: string;
@@ -49,6 +50,7 @@ export interface CreateOfficerPayload {
   unit?: string;
   room?: string;
   phone?: string;
+  telegramChatId?: string;
   order?: number;
 }
 

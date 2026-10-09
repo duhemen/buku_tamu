@@ -293,6 +293,7 @@ model Officer {
   unit       String?  // Unit/kelompok: "Pimpinan", "PPK", "Pokja", "Tim Teknis"
   room       String?  // Ruang/lokasi: "Ruang Kabalai, Lt 2"
   phone      String?  // Kontak internal
+  telegramChatId String?  // Chat ID Telegram untuk notifikasi
   order      Int      @default(0)  // Urutan tampil
   active     Boolean  @default(true)
   createdAt  DateTime @default(now())

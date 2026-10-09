@@ -20,6 +20,7 @@ import { publicRoutes } from './modules/public/public.routes.js';
 import { operatingRoutes } from './modules/operating/operating.routes.js';
 import { officerRoutes } from './modules/officers/officers.routes.js';
 import { announcementRoutes } from './modules/announcements/announcements.routes.js';
+import { telegramRoutes } from './modules/telegram/telegram.routes.js';
 
 const app = Fastify({
   logger: {
@@ -57,6 +58,7 @@ await app.register(publicRoutes, { prefix: '/api/public' });
 await app.register(operatingRoutes, { prefix: '/api/operating' });
 await app.register(officerRoutes, { prefix: '/api/officers' });
 await app.register(announcementRoutes, { prefix: '/api/announcements' });
+await app.register(telegramRoutes, { prefix: '/api/telegram' });
 
 app.setErrorHandler((error, _req, reply) => {
   app.log.error(error);
