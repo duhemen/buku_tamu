@@ -1,25 +1,41 @@
 import { prisma } from '../../config/prisma.js';
 
-export type OperatingStatus = 'OPEN' | 'CUT_OFF' | 'CLOSED' | 'HOLIDAY' | 'OVERRIDE';
+export type OperatingStatus =
+  | 'OPEN'
+  | 'CUT_OFF'
+  | 'BREAK'
+  | 'CLOSED'
+  | 'HOLIDAY'
+  | 'OVERRIDE';
+
+export interface SessionInfo {
+  sessionNumber: number;
+  openTime: string;
+  cutOffTime: string;
+  closeTime: string;
+}
 
 export interface OperatingStatusResult {
   isOpen: boolean;
   status: OperatingStatus;
   reason?: string;
-  nextOpenTime?: string; // ISO string
+  nextOpenTime?: string;
   minutesUntilCutOff?: number;
+  currentSession?: SessionInfo;
   todaySchedule?: {
-    openTime: string;
-    cutOffTime: string;
-    closeTime: string;
+    sessions: SessionInfo[];
+    // legacy fields (dipertahankan untuk kompatibilitas)
+    openTime?: string;
+    cutOffTime?: string;
+    closeTime?: string;
   };
   holidayName?: string;
   overrideReason?: string;
-  now: string; // ISO string waktu server
+  now: string;
 }
 
 // ============================================================
-// Helper: Konversi nama hari Prisma <-> JavaScript
+// Helper
 // ============================================================
 const JS_DAY_TO_PRISMA: Record<number, string> = {
   0: 'SUNDAY',
@@ -41,24 +57,15 @@ const PRISMA_DAY_TO_LABEL: Record<string, string> = {
   SUNDAY: 'Minggu',
 };
 
-// ============================================================
-// Helper: Parse waktu "HH:MM" jadi menit sejak tengah malam
-// ============================================================
 function parseTimeToMinutes(time: string): number {
   const [hh, mm] = time.split(':').map(Number);
   return hh * 60 + mm;
 }
 
-// ============================================================
-// Helper: Format waktu WIB sekarang jadi YYYY-MM-DD
-// ============================================================
 function getTodayWIB(now: Date = new Date()): string {
   return now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
 }
 
-// ============================================================
-// Helper: Ambil menit sekarang dalam WIB
-// ============================================================
 function getNowMinutesWIB(now: Date = new Date()): number {
   const hhmm = now.toLocaleTimeString('sv-SE', {
     timeZone: 'Asia/Jakarta',
@@ -69,35 +76,36 @@ function getNowMinutesWIB(now: Date = new Date()): number {
   return parseTimeToMinutes(hhmm);
 }
 
-// ============================================================
-// Helper: Ambil hari ini dalam WIB (0=Sunday, 6=Saturday)
-// ============================================================
 function getNowDayWIB(now: Date = new Date()): number {
-  const dayStr = now.toLocaleDateString('en-US', {
-    timeZone: 'Asia/Jakarta',
-    weekday: 'short',
-  });
-  const map: Record<string, number> = {
-    Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
-  };
-  return map[dayStr] ?? 0;
+  const wibDateStr = now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
+  const [y, m, d] = wibDateStr.split('-').map(Number);
+  const wibDate = new Date(Date.UTC(y, m - 1, d));
+  return wibDate.getUTCDay();
 }
 
-// ============================================================
-// Helper: Cari hari buka berikutnya
-// ============================================================
+function formatMinutes(m: number): string {
+  const hh = Math.floor(m / 60);
+  const mm = m % 60;
+  return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+}
+
 async function findNextOpenDay(
-  currentDay: number,
-  hours: { dayOfWeek: string; isOpen: boolean; openTime: string }[]
+  currentDay: number
 ): Promise<{ dayLabel: string; openTime: string } | null> {
+  const allHours = await prisma.operatingHours.findMany({
+    include: {
+      sessions: { orderBy: { sessionNumber: 'asc' } },
+    },
+  });
+
   for (let i = 1; i <= 7; i++) {
     const nextDay = (currentDay + i) % 7;
     const prismaDay = JS_DAY_TO_PRISMA[nextDay];
-    const schedule = hours.find((h) => h.dayOfWeek === prismaDay);
-    if (schedule && schedule.isOpen) {
+    const schedule = allHours.find((h) => h.dayOfWeek === prismaDay);
+    if (schedule && schedule.isOpen && schedule.sessions.length > 0) {
       return {
         dayLabel: PRISMA_DAY_TO_LABEL[schedule.dayOfWeek] ?? schedule.dayOfWeek,
-        openTime: schedule.openTime,
+        openTime: schedule.sessions[0].openTime,
       };
     }
   }
@@ -114,12 +122,10 @@ export async function getOperatingStatus(
   const todayStr = getTodayWIB(now);
 
   // ============================================================
-  // 1. Cek override hari ini (prioritas tertinggi)
+  // 1. Cek override
   // ============================================================
   const override = await prisma.timeOverride.findFirst({
-    where: {
-      date: new Date(todayStr + 'T00:00:00.000Z'),
-    },
+    where: { date: new Date(todayStr + 'T00:00:00.000Z') },
   });
 
   if (override) {
@@ -132,11 +138,10 @@ export async function getOperatingStatus(
         now: nowIso,
       };
     }
-    // Override buka — lewati cek jam, langsung buka
     return {
       isOpen: true,
       status: 'OVERRIDE',
-      reason: `Dibuka khusus: ${override.reason}`,
+      reason: 'Dibuka khusus: ' + override.reason,
       overrideReason: override.reason,
       now: nowIso,
     };
@@ -153,117 +158,196 @@ export async function getOperatingStatus(
   });
 
   if (holiday) {
-    const hours = await prisma.operatingHours.findMany();
-    const next = await findNextOpenDay(getNowDayWIB(now), hours);
+    const next = await findNextOpenDay(getNowDayWIB(now));
     return {
       isOpen: false,
       status: 'HOLIDAY',
-      reason: `Hari libur: ${holiday.name}`,
+      reason: 'Hari libur: ' + holiday.name,
       holidayName: holiday.name,
-      nextOpenTime: next
-        ? `${next.dayLabel}, ${next.openTime}`
-        : undefined,
+      nextOpenTime: next ? next.dayLabel + ', ' + next.openTime : undefined,
       now: nowIso,
     };
   }
 
   // ============================================================
-  // 3. Cek jam operasional hari ini
+  // 3. Ambil jadwal hari ini + semua sesi
   // ============================================================
   const todayPrismaDay = JS_DAY_TO_PRISMA[getNowDayWIB(now)];
   const schedule = await prisma.operatingHours.findUnique({
     where: { dayOfWeek: todayPrismaDay as any },
+    include: {
+      sessions: { orderBy: { sessionNumber: 'asc' } },
+    },
   });
 
-  const allHours = await prisma.operatingHours.findMany();
-
-  if (!schedule || !schedule.isOpen) {
-    const next = await findNextOpenDay(getNowDayWIB(now), allHours);
+  // Hari libur (weekend)
+  if (!schedule || !schedule.isOpen || schedule.sessions.length === 0) {
+    const next = await findNextOpenDay(getNowDayWIB(now));
     return {
       isOpen: false,
       status: 'CLOSED',
-      reason: `Hari ${PRISMA_DAY_TO_LABEL[todayPrismaDay] ?? ''} kantor tutup`,
-      nextOpenTime: next
-        ? `${next.dayLabel}, ${next.openTime}`
-        : undefined,
+      reason: 'Hari ' + (PRISMA_DAY_TO_LABEL[todayPrismaDay] ?? '') + ' kantor tutup',
+      nextOpenTime: next ? next.dayLabel + ', ' + next.openTime : undefined,
       now: nowIso,
     };
   }
 
   // ============================================================
-  // 4. Cek jam (open / cut-off / close)
+  // 4. Cek tiap sesi
   // ============================================================
   const nowMin = getNowMinutesWIB(now);
-  const openMin = parseTimeToMinutes(schedule.openTime);
-  const cutOffMin = parseTimeToMinutes(schedule.cutOffTime);
-  const closeMin = parseTimeToMinutes(schedule.closeTime);
+  const sessions: SessionInfo[] = schedule.sessions.map((s) => ({
+    sessionNumber: s.sessionNumber,
+    openTime: s.openTime,
+    cutOffTime: s.cutOffTime,
+    closeTime: s.closeTime,
+  }));
 
   const todaySchedule = {
-    openTime: schedule.openTime,
-    cutOffTime: schedule.cutOffTime,
-    closeTime: schedule.closeTime,
+    sessions,
+    // Legacy: pakai sesi pertama untuk kompatibilitas
+    openTime: sessions[0]?.openTime,
+    cutOffTime: sessions[0]?.cutOffTime,
+    closeTime: sessions[0]?.closeTime,
   };
 
-  // Sebelum buka
-  if (nowMin < openMin) {
+  // Loop sesi untuk cari yang aktif
+  let currentSession: SessionInfo | null = null;
+  let nextSession: SessionInfo | null = null;
+
+  for (let i = 0; i < sessions.length; i++) {
+    const s = sessions[i];
+    const sOpen = parseTimeToMinutes(s.openTime);
+    const sCut = parseTimeToMinutes(s.cutOffTime);
+    const sClose = parseTimeToMinutes(s.closeTime);
+
+    // Sebelum sesi buka
+    if (nowMin < sOpen) {
+      // Cek apakah ini sesi pertama atau sesi berikutnya
+      if (i === 0) {
+        return {
+          isOpen: false,
+          status: 'CLOSED',
+          reason: 'Kantor belum buka. Jam buka: ' + s.openTime,
+          todaySchedule,
+          nextOpenTime: 'Hari ini, ' + s.openTime,
+          now: nowIso,
+        };
+      } else {
+        // Istirahat (BREAK) — antara sesi sebelumnya tutup dan sesi ini buka
+        const prevSession = sessions[i - 1];
+        return {
+          isOpen: false,
+          status: 'BREAK',
+          reason:
+            'Kantor sedang istirahat (ISHOMA). Sesi ' +
+            prevSession.sessionNumber +
+            ': ' +
+            prevSession.openTime +
+            ' - ' +
+            prevSession.closeTime +
+            ' | Sesi ' +
+            s.sessionNumber +
+            ': ' +
+            s.openTime +
+            ' - ' +
+            s.closeTime,
+          todaySchedule,
+          nextOpenTime: 'Hari ini, ' + s.openTime,
+          now: nowIso,
+        };
+      }
+    }
+
+    // Dalam sesi buka
+    if (nowMin >= sOpen && nowMin < sCut) {
+      const minutesUntilCutOff = sCut - nowMin;
+      return {
+        isOpen: true,
+        status: 'OPEN',
+        reason:
+          'Registrasi dibuka (Sesi ' +
+          s.sessionNumber +
+          '). Sisa: ' +
+          minutesUntilCutOff +
+          ' menit',
+        currentSession: s,
+        minutesUntilCutOff,
+        todaySchedule,
+        now: nowIso,
+      };
+    }
+
+    // Dalam cut-off period (buka tapi sudah lewat cut-off)
+    if (nowMin >= sCut && nowMin < sClose) {
+      // Cek apakah ada sesi berikutnya
+      if (i + 1 < sessions.length) {
+        const nextS = sessions[i + 1];
+        return {
+          isOpen: false,
+          status: 'CUT_OFF',
+          reason:
+            'Waktu registrasi sesi ' +
+            s.sessionNumber +
+            ' sudah berakhir. Cut-off: ' +
+            s.cutOffTime,
+          todaySchedule,
+          nextOpenTime: 'Hari ini, ' + nextS.openTime,
+          now: nowIso,
+        };
+      } else {
+        // Sesi terakhir
+        const next = await findNextOpenDay(getNowDayWIB(now));
+        return {
+          isOpen: false,
+          status: 'CUT_OFF',
+          reason:
+            'Waktu registrasi sudah berakhir. Cut-off: ' + s.cutOffTime,
+          todaySchedule,
+          nextOpenTime: next ? next.dayLabel + ', ' + next.openTime : undefined,
+          now: nowIso,
+        };
+      }
+    }
+  }
+
+  // Setelah semua sesi tutup
+  const lastSession = sessions[sessions.length - 1];
+  if (nowMin >= parseTimeToMinutes(lastSession.closeTime)) {
+    const next = await findNextOpenDay(getNowDayWIB(now));
     return {
       isOpen: false,
       status: 'CLOSED',
-      reason: `Kantor belum buka. Jam buka: ${schedule.openTime}`,
+      reason:
+        'Kantor sudah tutup. Jam operasional sesi terakhir: ' +
+        lastSession.openTime +
+        ' - ' +
+        lastSession.closeTime,
       todaySchedule,
-      nextOpenTime: `Hari ini, ${schedule.openTime}`,
+      nextOpenTime: next ? next.dayLabel + ', ' + next.openTime : undefined,
       now: nowIso,
     };
   }
 
-  // Setelah tutup
-  if (nowMin >= closeMin) {
-    const next = await findNextOpenDay(getNowDayWIB(now), allHours);
-    return {
-      isOpen: false,
-      status: 'CLOSED',
-      reason: `Kantor sudah tutup. Jam operasional: ${schedule.openTime} - ${schedule.closeTime}`,
-      todaySchedule,
-      nextOpenTime: next
-        ? `${next.dayLabel}, ${next.openTime}`
-        : undefined,
-      now: nowIso,
-    };
-  }
-
-  // Dalam cut-off period (buka tapi sudah lewat cut-off)
-  if (nowMin >= cutOffMin) {
-    return {
-      isOpen: false,
-      status: 'CUT_OFF',
-      reason: `Waktu registrasi tamu sudah berakhir. Cut-off: ${schedule.cutOffTime}`,
-      todaySchedule,
-      nextOpenTime: `Besok, ${schedule.openTime}`,
-      now: nowIso,
-    };
-  }
-
-  // BUKA — hitung sisa waktu sampai cut-off
-  const minutesUntilCutOff = cutOffMin - nowMin;
-
+  // Fallback (tidak seharusnya sampai sini)
   return {
-    isOpen: true,
-    status: 'OPEN',
-    reason: `Registrasi dibuka. Sisa waktu: ${minutesUntilCutOff} menit`,
-    minutesUntilCutOff,
+    isOpen: false,
+    status: 'CLOSED',
+    reason: 'Di luar jam operasional',
     todaySchedule,
     now: nowIso,
   };
 }
 
 // ============================================================
-// Admin: List jam operasional
+// Admin: List jam operasional (termasuk sesi)
 // ============================================================
 export async function listOperatingHours() {
   const rows = await prisma.operatingHours.findMany({
-    orderBy: { dayOfWeek: 'asc' },
+    include: {
+      sessions: { orderBy: { sessionNumber: 'asc' } },
+    },
   });
-  // Urutkan berdasarkan hari (Senin-Minggu)
   const order: Record<string, number> = {
     MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4,
     FRIDAY: 5, SATURDAY: 6, SUNDAY: 7,
@@ -272,26 +356,65 @@ export async function listOperatingHours() {
 }
 
 // ============================================================
-// Admin: Update jam per hari
+// Admin: Update jam per hari (dengan sesi)
 // ============================================================
 export async function updateOperatingHours(
   day: string,
   data: {
     isOpen?: boolean;
-    openTime?: string;
-    cutOffTime?: string;
-    closeTime?: string;
     notes?: string | null;
+    sessions?: Array<{
+      sessionNumber: number;
+      openTime: string;
+      cutOffTime: string;
+      closeTime: string;
+    }>;
   }
 ) {
-  return prisma.operatingHours.update({
+  const hours = await prisma.operatingHours.findUnique({
     where: { dayOfWeek: day as any },
-    data,
+  });
+  if (!hours) throw new Error('Hari tidak ditemukan');
+
+  // Update isOpen + notes
+  await prisma.operatingHours.update({
+    where: { id: hours.id },
+    data: {
+      ...(data.isOpen !== undefined && { isOpen: data.isOpen }),
+      ...(data.notes !== undefined && { notes: data.notes }),
+    },
+  });
+
+  // Kalau ada sessions, replace semua
+  if (data.sessions) {
+    // Hapus sesi lama
+    await prisma.operatingSession.deleteMany({
+      where: { operatingHoursId: hours.id },
+    });
+
+    // Insert sesi baru
+    if (data.sessions.length > 0) {
+      await prisma.operatingSession.createMany({
+        data: data.sessions.map((s) => ({
+          operatingHoursId: hours.id,
+          sessionNumber: s.sessionNumber,
+          openTime: s.openTime,
+          cutOffTime: s.cutOffTime,
+          closeTime: s.closeTime,
+        })),
+      });
+    }
+  }
+
+  // Return updated
+  return prisma.operatingHours.findUnique({
+    where: { id: hours.id },
+    include: { sessions: { orderBy: { sessionNumber: 'asc' } } },
   });
 }
 
 // ============================================================
-// Admin: List hari libur
+// Sisanya sama seperti sebelumnya (holidays, overrides)
 // ============================================================
 export async function listHolidays(year?: number) {
   const where: Record<string, unknown> = {};
@@ -306,17 +429,13 @@ export async function listHolidays(year?: number) {
   });
 }
 
-// ============================================================
-// Admin: Tambah hari libur
-// ============================================================
 export async function createHoliday(data: {
-  date: string; // YYYY-MM-DD
+  date: string;
   name: string;
   notes?: string | null;
 }) {
   const [y, m, d] = data.date.split('-').map(Number);
   const dateObj = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0));
-
   return prisma.holiday.upsert({
     where: { date: dateObj },
     update: { name: data.name, notes: data.notes ?? null, isActive: true },
@@ -324,17 +443,11 @@ export async function createHoliday(data: {
   });
 }
 
-// ============================================================
-// Admin: Hapus hari libur
-// ============================================================
 export async function deleteHoliday(id: string) {
   await prisma.holiday.delete({ where: { id } });
   return { ok: true };
 }
 
-// ============================================================
-// Admin: Buat override sementara
-// ============================================================
 export async function createOverride(data: {
   date: string;
   isOpen: boolean;
@@ -345,7 +458,6 @@ export async function createOverride(data: {
 }) {
   const [y, m, d] = data.date.split('-').map(Number);
   const dateObj = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0));
-
   return prisma.timeOverride.create({
     data: {
       date: dateObj,
@@ -358,9 +470,6 @@ export async function createOverride(data: {
   });
 }
 
-// ============================================================
-// Admin: List override
-// ============================================================
 export async function listOverrides(from?: string, to?: string) {
   const where: Record<string, unknown> = {};
   if (from || to) {
@@ -374,9 +483,6 @@ export async function listOverrides(from?: string, to?: string) {
   });
 }
 
-// ============================================================
-// Admin: Hapus override
-// ============================================================
 export async function deleteOverride(id: string) {
   await prisma.timeOverride.delete({ where: { id } });
   return { ok: true };

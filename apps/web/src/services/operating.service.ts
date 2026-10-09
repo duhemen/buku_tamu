@@ -4,24 +4,30 @@ import { api } from '@/lib/api';
 // Types
 // ============================================================
 export type DayOfWeek =
-  | 'MONDAY'
-  | 'TUESDAY'
-  | 'WEDNESDAY'
-  | 'THURSDAY'
-  | 'FRIDAY'
-  | 'SATURDAY'
-  | 'SUNDAY';
+  | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
-export type OperatingStatus = 'OPEN' | 'CUT_OFF' | 'CLOSED' | 'HOLIDAY' | 'OVERRIDE';
+export type OperatingStatus = 'OPEN' | 'CUT_OFF' | 'BREAK' | 'CLOSED' | 'HOLIDAY' | 'OVERRIDE';
+
+export interface SessionInfo {
+  sessionNumber: number;
+  openTime: string;
+  cutOffTime: string;
+  closeTime: string;
+}
+
+export interface OperatingSession extends SessionInfo {
+  id: string;
+  operatingHoursId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface OperatingHours {
   id: string;
   dayOfWeek: DayOfWeek;
   isOpen: boolean;
-  openTime: string;
-  cutOffTime: string;
-  closeTime: string;
   notes?: string | null;
+  sessions: OperatingSession[];
   createdAt: string;
   updatedAt: string;
 }
@@ -51,10 +57,12 @@ export interface OperatingStatusResult {
   reason?: string;
   nextOpenTime?: string;
   minutesUntilCutOff?: number;
+  currentSession?: SessionInfo;
   todaySchedule?: {
-    openTime: string;
-    cutOffTime: string;
-    closeTime: string;
+    sessions: SessionInfo[];
+    openTime?: string;
+    cutOffTime?: string;
+    closeTime?: string;
   };
   holidayName?: string;
   overrideReason?: string;
@@ -65,9 +73,7 @@ export interface OperatingStatusResult {
 // Public
 // ============================================================
 export async function getPublicOperatingStatus(): Promise<OperatingStatusResult> {
-  return api<OperatingStatusResult>('/operating/public/operating-status', {
-    auth: false,
-  });
+  return api<OperatingStatusResult>('/operating/public/operating-status', { auth: false });
 }
 
 // ============================================================
@@ -81,10 +87,8 @@ export async function updateOperatingHours(
   day: DayOfWeek,
   data: {
     isOpen?: boolean;
-    openTime?: string;
-    cutOffTime?: string;
-    closeTime?: string;
     notes?: string | null;
+    sessions?: SessionInfo[];
   }
 ): Promise<OperatingHours> {
   return api<OperatingHours>('/operating/hours/' + day, {
@@ -145,7 +149,7 @@ export async function deleteOverride(id: string): Promise<void> {
 }
 
 // ============================================================
-// Helper: Label hari
+// Helper
 // ============================================================
 export const DAY_LABEL: Record<DayOfWeek, string> = {
   MONDAY: 'Senin',

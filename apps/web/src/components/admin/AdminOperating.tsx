@@ -157,7 +157,7 @@ function HoursTab() {
             Jam Operasional Mingguan
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            Atur jam buka, cut-off registrasi, dan jam tutup
+            Setiap hari bisa punya 1 atau lebih sesi (misal: pagi & siang)
           </p>
         </div>
         <span className="text-xs text-slate-400">{hours.length} hari</span>
@@ -168,11 +168,7 @@ function HoursTab() {
       ) : (
         <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {hours.map((h) => (
-            <HoursRow
-              key={h.id}
-              hour={h}
-              onEdit={() => setEditing(h)}
-            />
+            <HoursRow key={h.id} hour={h} onEdit={() => setEditing(h)} />
           ))}
         </div>
       )}
@@ -193,17 +189,14 @@ function HoursTab() {
 
 function HoursRow({ hour, onEdit }: { hour: OperatingHours; onEdit: () => void }) {
   return (
-    <div className="flex items-center gap-4 px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-      <div className="w-24">
+    <div className="flex items-start gap-4 px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+      <div className="w-24 pt-1">
         <div className="font-medium text-slate-800 dark:text-slate-200">
           {DAY_LABEL[hour.dayOfWeek]}
         </div>
-      </div>
-
-      <div className="w-20">
         <span
           className={
-            'inline-block px-2 py-0.5 rounded-md text-xs font-medium ' +
+            'inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium ' +
             (hour.isOpen
               ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
               : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300')
@@ -213,24 +206,47 @@ function HoursRow({ hour, onEdit }: { hour: OperatingHours; onEdit: () => void }
         </span>
       </div>
 
-      {hour.isOpen ? (
-        <div className="flex-1 flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
-          <div>
-            <span className="text-xs text-slate-400">Buka:</span>{' '}
-            <strong className="text-slate-700 dark:text-slate-300">{hour.openTime}</strong>
+      <div className="flex-1">
+        {hour.isOpen && hour.sessions.length > 0 ? (
+          <div className="space-y-2">
+            {hour.sessions.map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center gap-3 text-sm bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2"
+              >
+                <span className="text-xs font-bold text-brand-600 dark:text-brand-400 w-14">
+                  Sesi {s.sessionNumber}
+                </span>
+                <span className="text-slate-600 dark:text-slate-400">
+                  Buka:{' '}
+                  <strong className="text-slate-800 dark:text-slate-200">
+                    {s.openTime}
+                  </strong>
+                </span>
+                <span className="text-slate-400">|</span>
+                <span className="text-slate-600 dark:text-slate-400">
+                  Cut-off:{' '}
+                  <strong className="text-amber-600 dark:text-amber-400">
+                    {s.cutOffTime}
+                  </strong>
+                </span>
+                <span className="text-slate-400">|</span>
+                <span className="text-slate-600 dark:text-slate-400">
+                  Tutup:{' '}
+                  <strong className="text-slate-800 dark:text-slate-200">
+                    {s.closeTime}
+                  </strong>
+                </span>
+              </div>
+            ))}
+            {hour.notes && (
+              <div className="text-xs text-slate-400 italic pl-3">{hour.notes}</div>
+            )}
           </div>
-          <div>
-            <span className="text-xs text-slate-400">Cut-off:</span>{' '}
-            <strong className="text-amber-600 dark:text-amber-400">{hour.cutOffTime}</strong>
-          </div>
-          <div>
-            <span className="text-xs text-slate-400">Tutup:</span>{' '}
-            <strong className="text-slate-700 dark:text-slate-300">{hour.closeTime}</strong>
-          </div>
-        </div>
-      ) : (
-        <div className="flex-1 text-sm text-slate-400 italic">Libur</div>
-      )}
+        ) : (
+          <div className="text-sm text-slate-400 italic py-2">Libur</div>
+        )}
+      </div>
 
       <button
         onClick={onEdit}
@@ -253,27 +269,97 @@ function EditHoursModal({
 }) {
   const [form, setForm] = useState({
     isOpen: hour.isOpen,
-    openTime: hour.openTime,
-    cutOffTime: hour.cutOffTime,
-    closeTime: hour.closeTime,
     notes: hour.notes ?? '',
+    sessions: hour.sessions.map((s) => ({
+      sessionNumber: s.sessionNumber,
+      openTime: s.openTime,
+      cutOffTime: s.cutOffTime,
+      closeTime: s.closeTime,
+    })),
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // ============================================================
+  // Immutable update - biar React detect perubahan
+  // ============================================================
+  const updateSession = (idx: number, key: string, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      sessions: prev.sessions.map((s, i) =>
+        i === idx ? { ...s, [key]: value } : s
+      ),
+    }));
+  };
+
+  const addSession = () => {
+    setForm((prev) => {
+      const newNum = prev.sessions.length + 1;
+      return {
+        ...prev,
+        sessions: [
+          ...prev.sessions,
+          {
+            sessionNumber: newNum,
+            openTime: '13:00',
+            cutOffTime: '15:30',
+            closeTime: '16:00',
+          },
+        ],
+      };
+    });
+  };
+
+  const removeSession = (idx: number) => {
+    setForm((prev) => {
+      const newSessions = prev.sessions
+        .filter((_, i) => i !== idx)
+        .map((s, i) => ({ ...s, sessionNumber: i + 1 }));
+      return { ...prev, sessions: newSessions };
+    });
+  };
+
   const save = async () => {
     setSaving(true);
     setError(null);
+
+    // Validation
+    if (form.isOpen && form.sessions.length === 0) {
+      setError('Minimal harus ada 1 sesi kalau hari ini buka');
+      setSaving(false);
+      return;
+    }
+
+    for (const s of form.sessions) {
+      if (!s.openTime || !s.cutOffTime || !s.closeTime) {
+        setError('Semua jam sesi harus diisi');
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
-      await updateOperatingHours(hour.dayOfWeek, {
+      const payload = {
         isOpen: form.isOpen,
-        openTime: form.openTime,
-        cutOffTime: form.cutOffTime,
-        closeTime: form.closeTime,
         notes: form.notes || null,
-      });
+        sessions: form.isOpen
+          ? form.sessions.map((s, i) => ({
+              sessionNumber: i + 1,
+              openTime: s.openTime,
+              cutOffTime: s.cutOffTime,
+              closeTime: s.closeTime,
+            }))
+          : [],
+      };
+
+      console.log('[EditHours] Sending payload:', payload);
+
+      const result = await updateOperatingHours(hour.dayOfWeek, payload);
+      console.log('[EditHours] Response:', result);
+
       onSaved();
     } catch (e) {
+      console.error('[EditHours] Error:', e);
       setError((e as Error).message);
     } finally {
       setSaving(false);
@@ -284,18 +370,20 @@ function EditHoursModal({
     'w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-brand-500';
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-6">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg p-6 my-8">
         <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-4">
           Edit Jam - {DAY_LABEL[hour.dayOfWeek]}
         </h3>
 
-        <div className="space-y-3">
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={form.isOpen}
-              onChange={(e) => setForm({ ...form, isOpen: e.target.checked })}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, isOpen: e.target.checked }))
+              }
               className="w-4 h-4"
             />
             <span className="text-slate-700 dark:text-slate-300">
@@ -305,42 +393,77 @@ function EditHoursModal({
 
           {form.isOpen && (
             <>
-              <div>
-                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
-                  Jam Buka
-                </label>
-                <input
-                  type="time"
-                  value={form.openTime}
-                  onChange={(e) => setForm({ ...form, openTime: e.target.value })}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
-                  Cut-off Registrasi Tamu
-                </label>
-                <input
-                  type="time"
-                  value={form.cutOffTime}
-                  onChange={(e) => setForm({ ...form, cutOffTime: e.target.value })}
-                  className={inputClass}
-                />
-                <p className="text-xs text-slate-400 mt-1">
-                  Tamu tidak bisa registrasi setelah jam ini
-                </p>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
-                  Jam Tutup
-                </label>
-                <input
-                  type="time"
-                  value={form.closeTime}
-                  onChange={(e) => setForm({ ...form, closeTime: e.target.value })}
-                  className={inputClass}
-                />
-              </div>
+              {form.sessions.map((s, idx) => (
+                <div
+                  key={idx}
+                  className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold text-sm text-brand-600 dark:text-brand-400">
+                      Sesi {s.sessionNumber}
+                    </div>
+                    {form.sessions.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeSession(idx)}
+                        className="text-xs text-rose-600 hover:text-rose-700 dark:text-rose-400"
+                      >
+                        × Hapus Sesi
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                        Buka
+                      </label>
+                      <input
+                        type="time"
+                        value={s.openTime}
+                        onChange={(e) =>
+                          updateSession(idx, 'openTime', e.target.value)
+                        }
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                        Cut-off
+                      </label>
+                      <input
+                        type="time"
+                        value={s.cutOffTime}
+                        onChange={(e) =>
+                          updateSession(idx, 'cutOffTime', e.target.value)
+                        }
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                        Tutup
+                      </label>
+                      <input
+                        type="time"
+                        value={s.closeTime}
+                        onChange={(e) =>
+                          updateSession(idx, 'closeTime', e.target.value)
+                        }
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addSession}
+                className="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-500 dark:hover:border-brand-500 rounded-xl text-sm text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition"
+              >
+                + Tambah Sesi
+              </button>
             </>
           )}
 
@@ -350,7 +473,9 @@ function EditHoursModal({
             </label>
             <input
               value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, notes: e.target.value }))
+              }
               className={inputClass}
               placeholder="Misal: Jum'at pulang lebih awal"
             />
@@ -382,10 +507,6 @@ function EditHoursModal({
     </div>
   );
 }
-
-// ============================================================
-// TAB 2: Hari Libur
-// ============================================================
 function HolidaysTab() {
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [year, setYear] = useState(new Date().getFullYear());

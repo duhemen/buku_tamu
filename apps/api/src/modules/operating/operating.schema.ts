@@ -1,24 +1,28 @@
 import { z } from 'zod';
 
 export const dayOfWeekEnum = z.enum([
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-  'SUNDAY',
+  'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY',
 ]);
 
-// Format waktu "HH:MM" (00:00 - 23:59)
 const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
 
+// ============================================================
+// Schema untuk 1 sesi
+// ============================================================
+export const sessionSchema = z.object({
+  sessionNumber: z.number().int().min(1).max(10),
+  openTime: z.string().regex(timeRegex, 'Format HH:MM'),
+  cutOffTime: z.string().regex(timeRegex, 'Format HH:MM'),
+  closeTime: z.string().regex(timeRegex, 'Format HH:MM'),
+});
+
+// ============================================================
+// Schema update jam (dengan sessions array)
+// ============================================================
 export const updateHoursSchema = z.object({
   isOpen: z.boolean().optional(),
-  openTime: z.string().regex(timeRegex, 'Format HH:MM').optional(),
-  cutOffTime: z.string().regex(timeRegex, 'Format HH:MM').optional(),
-  closeTime: z.string().regex(timeRegex, 'Format HH:MM').optional(),
   notes: z.string().max(500).optional().nullable(),
+  sessions: z.array(sessionSchema).optional(),
 });
 
 export const createHolidaySchema = z.object({

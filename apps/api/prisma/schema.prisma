@@ -216,17 +216,33 @@ enum DayOfWeek {
 }
 
 model OperatingHours {
-  id         String    @id @default(cuid())
-  dayOfWeek  DayOfWeek @unique
-  isOpen     Boolean   @default(true)
-  openTime   String    // format "HH:MM" contoh "08:00"
-  cutOffTime String    // format "HH:MM" contoh "15:30"
-  closeTime  String    // format "HH:MM" contoh "16:00"
-  notes      String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id        String    @id @default(cuid())
+  dayOfWeek DayOfWeek @unique
+  isOpen    Boolean   @default(true)
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  sessions OperatingSession[]
 
   @@map("operating_hours")
+}
+
+model OperatingSession {
+  id               String   @id @default(cuid())
+  operatingHoursId String
+  sessionNumber    Int
+  openTime         String
+  cutOffTime       String
+  closeTime        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  operatingHours OperatingHours @relation(fields: [operatingHoursId], references: [id], onDelete: Cascade)
+
+  @@unique([operatingHoursId, sessionNumber])
+  @@index([operatingHoursId])
+  @@map("operating_sessions")
 }
 
 model Holiday {
