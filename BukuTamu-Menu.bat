@@ -19,8 +19,8 @@ echo    --- Cloudflare Tunnel ---
 echo    [5]  Start Tunnel (Manual)
 echo    [6]  Stop Tunnel
 echo    [7]  Cek Status Tunnel
-echo    [8]  Install Tunnel Service (24/7 - Butuh Admin)
-echo    [9]  Uninstall Tunnel Service
+echo    [8]  * SETUP TOKEN CLOUDFLARE (Wajib Pertama Kali)
+echo    [9]  Reset Token Cloudflare
 echo.
 echo    --- Aplikasi ---
 echo    [10] Start API Backend
@@ -38,6 +38,8 @@ echo    [17] Buka Browser Kiosk
 echo    [18] Buka Browser Admin
 echo    [19] Buka Browser TV Antrean
 echo    [20] Backup Database
+echo    [21] Lihat Panduan Setup Cloudflare
+echo    [22] Setup Awal (Cek Docker + Prasyarat)
 echo.
 echo    [0]  Keluar
 echo.
@@ -51,8 +53,8 @@ if "%choice%"=="4"  call :RUN status-all
 if "%choice%"=="5"  call :RUN start-tunnel
 if "%choice%"=="6"  call :RUN stop-tunnel
 if "%choice%"=="7"  call :RUN status-tunnel
-if "%choice%"=="8"  call :RUN install-service
-if "%choice%"=="9"  call :RUN uninstall-service
+if "%choice%"=="8"  call :RUN setup-cf-token
+if "%choice%"=="9"  call :RUN reset-cf-token
 if "%choice%"=="10" call :RUN start-api
 if "%choice%"=="11" call :RUN start-web
 if "%choice%"=="12" call :RUN stop-node
@@ -64,6 +66,8 @@ if "%choice%"=="17" call :RUN open-kiosk
 if "%choice%"=="18" call :RUN open-admin
 if "%choice%"=="19" call :RUN open-tv
 if "%choice%"=="20" call :RUN backup-db
+if "%choice%"=="21" call :RUN cf-guide
+if "%choice%"=="22" call :RUN setup-awal
 if "%choice%"=="0"  exit /b 0
 
 echo.

@@ -261,7 +261,7 @@ function Action-StatusAll {
         $face = Invoke-RestMethod 'http://localhost:8000/health' -TimeoutSec 3 -ErrorAction Stop
         Write-OK "Face Service: $($face.status) - model_ready: $($face.model_ready)"
     } catch {
-        Write-Host '  [X] Face Service: tidak respon (opsional)' -ForegroundColor DarkGray
+        Write-Host '  [X] Face Service: tidak respon [opsional]' -ForegroundColor DarkGray
     }
     
     try {
@@ -298,9 +298,33 @@ function Action-StartTunnel {
         return
     }
     
-    Write-Info 'Start tunnel manual...'
+    # Baca token dari config/cloudflare.json
+    $configFile = Join-Path $Root 'config\cloudflare.json'
+    $token = $CF_TOKEN  # fallback default
+    
+    if (Test-Path $configFile) {
+        try {
+            $config = Get-Content $configFile -Raw | ConvertFrom-Json
+            if ($config.tunnelToken) {
+                $token = $config.tunnelToken
+                Write-Info "Menggunakan token dari config/cloudflare.json"
+                if ($config.domain) {
+                    Write-Info "Domain: $($config.domain)"
+                }
+            }
+        } catch {
+            Write-Warn "Gagal baca config: $($_.Exception.Message)"
+        }
+    } else {
+        Write-Warn 'Token Cloudflare belum di-setup!'
+        Write-Info 'Buka menu [8] Setup Token Cloudflare dulu'
+        $continue = Read-Host 'Lanjut dengan token default? [y/n]'
+        if ($continue -ne 'y') { return }
+    }
+    
+    Write-Info 'Start tunnel...'
     Start-Process -FilePath $CF_BIN `
-        -ArgumentList @('tunnel', 'run', '--token', $CF_TOKEN) `
+        -ArgumentList @('tunnel', 'run', '--token', $token) `
         -WindowStyle Minimized
     Start-Sleep 5
     
@@ -578,6 +602,256 @@ function Action-BackupDB {
     }
 }
 
+
+# ============================================================
+# FUNGSI BARU: Setup Cloudflare Token (Wizard)
+# ============================================================
+function Action-SetupCloudflareToken {
+    Write-Header 'SETUP TOKEN CLOUDFLARE TUNNEL'
+    
+    # Cek config folder
+    $configDir = Join-Path $Root 'config'
+    if (-not (Test-Path $configDir)) {
+        New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+    }
+    $configFile = Join-Path $configDir 'cloudflare.json'
+    
+    # Cek existing
+    if (Test-Path $configFile) {
+        Write-Warn 'Token Cloudflare sudah ada!'
+        $existing = Get-Content $configFile -Raw | ConvertFrom-Json
+        Write-Host ''
+        Write-Host '  Domain       : ' -NoNewline -ForegroundColor Gray
+        Write-Host $existing.domain
+        Write-Host '  Configured   : ' -NoNewline -ForegroundColor Gray
+        Write-Host $existing.configuredAt
+        Write-Host '  Token (10ch) : ' -NoNewline -ForegroundColor Gray
+        Write-Host ($existing.tunnelToken.Substring(0, 10) + '...')
+        Write-Host ''
+        $confirm = Read-Host 'Ganti token dengan yang baru? (y/n)'
+        if ($confirm -ne 'y') {
+            Write-Info 'Dibatalkan'
+            return
+        }
+    }
+    
+    Write-Host ''
+    Write-Host 'Panduan singkat setup Cloudflare:' -ForegroundColor Yellow
+    Write-Host '  1. Daftar gratis di https://dash.cloudflare.com/sign-up'
+    Write-Host '  2. Tambahkan domain Anda ke Cloudflare'
+    Write-Host '  3. Buka https://one.dash.cloudflare.com â†’ Networks â†’ Tunnels'
+    Write-Host '  4. Create a tunnel â†’ Cloudflared â†’ beri nama "bukutamu"'
+    Write-Host '  5. Copy token yang muncul (string panjang eyJhIjoi...)'
+    Write-Host '  6. Paste di bawah ini'
+    Write-Host ''
+    Write-Host 'Detail lengkap: lihat docs/SETUP-CLOUDFLARE.md' -ForegroundColor Gray
+    Write-Host ''
+    
+    Write-Host 'Token Cloudflare Tunnel:' -ForegroundColor Cyan
+    Write-Host '  (paste lalu tekan Enter, kosongkan untuk batal)' -ForegroundColor Gray
+    $token = Read-Host '  >'
+    
+    if ([string]::IsNullOrWhiteSpace($token)) {
+        Write-Info 'Dibatalkan'
+        return
+    }
+    
+    if ($token.Length -lt 50) {
+        Write-Err 'Token terlalu pendek. Token Cloudflare biasanya 100+ karakter.'
+        Wait-User
+        return
+    }
+    
+    Write-Host ''
+    Write-Host 'Domain (opsional, untuk referensi):' -ForegroundColor Cyan
+    Write-Host '  Contoh: kantorsaya.com' -ForegroundColor Gray
+    $domain = Read-Host '  >'
+    
+    Write-Host ''
+    Write-Info 'Memvalidasi token... (bisa 10-30 detik)'
+    
+    # Test token dengan cloudflared (dry-run)
+    $validateCmd = & $CF_BIN tunnel --token $token run --url http://localhost:5173 2>&1 | Out-String
+    Start-Sleep 3
+    
+    # Cek proses cloudflared jalan (kalau iya, berarti token valid)
+    $proc = Get-Process cloudflared -ErrorAction SilentlyContinue
+    if ($proc) {
+        # Kill proses test
+        Stop-Process -Name cloudflared -Force -ErrorAction SilentlyContinue
+        Start-Sleep 2
+        Write-OK 'Token valid!'
+    } else {
+        # Cek apakah error karena token invalid
+        if ($validateCmd -match 'invalid|Unauthorized|error') {
+            Write-Err 'Token tidak valid!'
+            Write-Host ''
+            Write-Host 'Pesan error:' -ForegroundColor Yellow
+            Write-Host $validateCmd -ForegroundColor Gray
+            Wait-User
+            return
+        } else {
+            Write-Info 'Token mungkin valid (tidak bisa konfirmasi)'
+        }
+    }
+    
+    # Simpan ke file
+    $config = @{
+        tunnelToken = $token
+        domain = $domain
+        configuredAt = (Get-Date).ToString('o')
+        configuredBy = 'BukuTamu Setup Wizard'
+    }
+    
+    $config | ConvertTo-Json | Set-Content $configFile -Encoding UTF8
+    
+    Write-Host ''
+    Write-OK 'Token berhasil disimpan di config/cloudflare.json'
+    Write-Info 'Sekarang Anda bisa pilih menu [1] Start Semua'
+    Wait-User
+}
+
+# ============================================================
+# FUNGSI BARU: Reset Cloudflare Token
+# ============================================================
+function Action-ResetCloudflareToken {
+    Write-Header 'RESET TOKEN CLOUDFLARE'
+    
+    $configFile = Join-Path $Root 'config\cloudflare.json'
+    
+    if (-not (Test-Path $configFile)) {
+        Write-Info 'Token Cloudflare belum di-setup'
+        Wait-User
+        return
+    }
+    
+    Write-Warn 'Token Cloudflare akan dihapus!'
+    Write-Host ''
+    Write-Host 'Setelah dihapus, tunnel tidak bisa start.' -ForegroundColor Gray
+    Write-Host 'Anda perlu setup ulang via menu [8].' -ForegroundColor Gray
+    Write-Host ''
+    
+    $confirm = Read-Host 'Yakin hapus token? (y/n)'
+    if ($confirm -eq 'y') {
+        Remove-Item $configFile -Force
+        Write-OK 'Token dihapus'
+    } else {
+        Write-Info 'Dibatalkan'
+    }
+    Wait-User
+}
+
+# ============================================================
+# FUNGSI BARU: Panduan Cloudflare (Buka Notepad)
+# ============================================================
+function Action-ShowCloudflareGuide {
+    Write-Header 'PANDUAN SETUP CLOUDFLARE'
+    
+    $guidePath = Join-Path $Root 'docs\SETUP-CLOUDFLARE.md'
+    
+    if (Test-Path $guidePath) {
+        Write-Info 'Membuka panduan di Notepad...'
+        Start-Process notepad.exe -ArgumentList $guidePath
+        Write-OK 'Panduan terbuka di Notepad'
+    } else {
+        Write-Warn 'File panduan tidak ditemukan: docs/SETUP-CLOUDFLARE.md'
+        Write-Info 'Baca online: https://developers.cloudflare.com/cloudflare-one/'
+    }
+    Wait-User
+}
+
+# ============================================================
+# FUNGSI BARU: Setup Awal (Cek Docker, Node, Python)
+# ============================================================
+function Action-SetupAwal {
+    Write-Header 'SETUP AWAL - CEK PRASYARAT'
+    
+    Write-Host 'Sistem akan cek semua prasyarat:' -ForegroundColor Gray
+    Write-Host ''
+    
+    # 1. Cek Docker
+    Write-Step 1 4 'Cek Docker Desktop...'
+    $dockerCheck = docker --version 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-OK "Docker: $dockerCheck"
+    } else {
+        Write-Warn 'Docker Desktop belum terinstall!'
+        Write-Host ''
+        Write-Host 'Docker Desktop dibutuhkan untuk menjalankan aplikasi ini.' -ForegroundColor Yellow
+        Write-Host ''
+        Write-Host 'Pilihan:' -ForegroundColor Cyan
+        Write-Host '  [1] Install otomatis via winget (butuh admin)'
+        Write-Host '  [2] Buka link download manual'
+        Write-Host '  [3] Skip'
+        Write-Host ''
+        $choice = Read-Host 'Pilihan (1/2/3)'
+        
+        if ($choice -eq '1') {
+            Write-Info 'Menjalankan winget install...'
+            try {
+                winget install Docker.DockerDesktop
+                Write-OK 'Docker Desktop terinstall. Restart Windows kemudian jalankan ulang menu ini.'
+            } catch {
+                Write-Err "Gagal install: $_"
+                Write-Info 'Coba install manual: https://www.docker.com/products/docker-desktop'
+            }
+        } elseif ($choice -eq '2') {
+            Start-Process 'https://www.docker.com/products/docker-desktop'
+            Write-Info 'Link download dibuka di browser'
+        }
+    }
+    
+    # 2. Cek Node.js
+    Write-Host ''
+    Write-Step 2 4 'Cek Node.js...'
+    $nodeCheck = node --version 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-OK "Node.js: $nodeCheck"
+    } else {
+        Write-Warn 'Node.js belum terinstall'
+        Write-Info 'Install via winget: winget install OpenJS.NodeJS'
+        $choice = Read-Host 'Install otomatis via winget? (y/n)'
+        if ($choice -eq 'y') {
+            winget install OpenJS.NodeJS
+        }
+    }
+    
+    # 3. Cek Python (opsional untuk face service)
+    Write-Host ''
+    Write-Step 3 4 'Cek Python 3.11...'
+    $pyCheck = py -3.11 --version 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-OK "Python: $pyCheck"
+    } else {
+        Write-Warn 'Python 3.11 belum terinstall'
+        Write-Info 'Opsional â€” dibutuhkan untuk face recognition'
+        Write-Info 'Install: winget install Python.Python.3.11'
+    }
+    
+    # 4. Cek WSL2
+    Write-Host ''
+    Write-Step 4 4 'Cek WSL2...'
+    $wslCheck = wsl --status 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-OK 'WSL2 aktif'
+    } else {
+        Write-Warn 'WSL2 belum aktif â€” Docker Desktop butuh ini'
+        Write-Info 'Aktifkan via admin: wsl --install'
+    }
+    
+    Write-Host ''
+    Write-Host '============================================================' -ForegroundColor Green
+    Write-Host '  SETUP AWAL SELESAI' -ForegroundColor Green
+    Write-Host '============================================================' -ForegroundColor Green
+    Write-Host ''
+    Write-Host 'Langkah selanjutnya:' -ForegroundColor Yellow
+    Write-Host '  1. Kalau baru install Docker, restart Windows dulu'
+    Write-Host '  2. Buka menu lagi â†’ [8] Setup Token Cloudflare [opsional]'
+    Write-Host '  3. Menu â†’ [1] Start Semua'
+    Write-Host ''
+    Wait-User
+}
+
 # ============================================================
 # MAIN: Dispatch berdasarkan $Action
 # ============================================================
@@ -589,6 +863,10 @@ switch ($Action) {
     'start-tunnel'      { Action-StartTunnel }
     'stop-tunnel'       { Action-StopTunnel }
     'status-tunnel'     { Action-StatusTunnel }
+    'setup-cf-token'    { Action-SetupCloudflareToken }
+    'reset-cf-token'    { Action-ResetCloudflareToken }
+    'cf-guide'          { Action-ShowCloudflareGuide }
+    'setup-awal'        { Action-SetupAwal }
     'install-service'   { Action-InstallService }
     'uninstall-service' { Action-UninstallService }
     'start-api'         { Action-StartAPI }
