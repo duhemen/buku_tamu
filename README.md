@@ -4,7 +4,7 @@
 > antrean otomatis, kartu QR/barcode, dashboard publik, dan TV antrean live.
 
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
-![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![Version](https://img.shields.io/badge/version-1.5.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Node](https://img.shields.io/badge/node-%3E%3D20-339933)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D9-F69220)
@@ -469,7 +469,7 @@ pnpm --filter @buku-tamu/worker dev
 | `/tv` | TV Antrean Live | Publik |
 | `/verify` | Verifikasi kode | Publik |
 | `/login` | Login petugas | Publik |
-| `/admin` | Admin panel (5 tab) | Butuh Login |
+| `/admin` | Admin panel (8 tab) | Butuh Login |
 
 ### Alur Kiosk Tamu
 
@@ -501,7 +501,7 @@ pnpm --filter @buku-tamu/worker dev
 
 ## Roadmap
 
-### Selesai (v1.3.0)
+### Selesai (v1.5.0)
 - [x] Kiosk + kamera + foto wajah
 - [x] Face recognition auto-fill (aHash)
 - [x] Serah terima 5 jenis + bukti QR
