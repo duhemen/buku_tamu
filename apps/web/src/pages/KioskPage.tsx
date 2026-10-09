@@ -1,6 +1,8 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import CameraScanner from '@/components/CameraScanner';
+import AnnouncementsPanel from '@/components/AnnouncementsPanel';
+import OfficersStatusPanel from '@/components/OfficersStatusPanel';
 import OperatingClosedScreen from '@/components/OperatingClosedScreen';
 import CutOffWarningBanner from '@/components/CutOffWarningBanner';
 import {
@@ -71,6 +73,7 @@ export default function KioskPage() {
   const [error, setError] = useState<string | null>(null);
   const [opStatus, setOpStatus] = useState<OperatingStatusResult | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
+  const [showInfoPanel, setShowInfoPanel] = useState(true);
   const navigate = useNavigate();
 
   // ============================================================
@@ -82,7 +85,7 @@ export default function KioskPage() {
       setOpStatus(s);
     } catch (e) {
       console.error('Operating status error:', e);
-      // Kalau error, jangan blokir â€” izinkan form muncul
+      // Kalau error, jangan blokir Ã¢â‚¬â€ izinkan form muncul
       setOpStatus(null);
     } finally {
       setCheckingStatus(false);
@@ -261,7 +264,49 @@ export default function KioskPage() {
           <CutOffWarningBanner status={opStatus} />
         )}
 
-        <div className="grid lg:grid-cols-3 gap-6">
+                {/* ============================================================ */}
+        {/* INFO PANEL: Agenda + Status Petugas                           */}
+        {/* ============================================================ */}
+        {showInfoPanel && (
+          <div className="mb-6 animate-fade-up">
+            {/* Toggle Button */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs uppercase tracking-wider text-slate-400 font-medium">
+                Informasi Hari Ini
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInfoPanel(false)}
+                className="text-xs text-slate-500 hover:text-brand-600 dark:text-slate-400 flex items-center gap-1"
+              >
+                Sembunyikan
+                <span>▲</span>
+              </button>
+            </div>
+
+            {/* Panels Grid */}
+            <div className="grid lg:grid-cols-2 gap-5">
+              <AnnouncementsPanel />
+              <OfficersStatusPanel />
+            </div>
+          </div>
+        )}
+
+        {/* Show button kalau panel disembunyikan */}
+        {!showInfoPanel && (
+          <div className="mb-6 text-center">
+            <button
+              type="button"
+              onClick={() => setShowInfoPanel(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition shadow-sm"
+            >
+              <span>📢</span>
+              Lihat Info Hari Ini (Agenda + Status Petugas)
+              <span>▼</span>
+            </button>
+          </div>
+        )}
+<div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
               <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-3">

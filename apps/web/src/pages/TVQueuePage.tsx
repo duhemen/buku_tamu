@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getPublicOperatingStatus, OperatingStatusResult } from '@/services/operating.service';
+import TVInfoStrip from '@/components/TVInfoStrip';
 
 interface TVData {
   current: {
@@ -237,6 +238,11 @@ export default function TVQueuePage() {
             <StatBox label="Dipanggil" value={data?.stats.called ?? 0} accent="blue" />
             <StatBox label="Selesai" value={data?.stats.served ?? 0} accent="emerald" />
           </div>
+        </div>
+
+                {/* Info Strip - Agenda + Status Petugas */}
+        <div className="col-span-3 mt-2">
+          <TVInfoStrip />
         </div>
 
         <div className="flex flex-col">

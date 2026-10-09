@@ -5,8 +5,18 @@ import AdminQueues from '@/components/admin/AdminQueues';
 import AdminHandovers from '@/components/admin/AdminHandovers';
 import AdminReports from '@/components/admin/AdminReports';
 import AdminOperating from '@/components/admin/AdminOperating';
+import AdminOfficers from '@/components/admin/AdminOfficers';
+import AdminAnnouncements from '@/components/admin/AdminAnnouncements';
 
-type Tab = 'queues' | 'visits' | 'handovers' | 'guests' | 'reports' | 'operating';
+type Tab =
+  | 'queues'
+  | 'visits'
+  | 'handovers'
+  | 'guests'
+  | 'reports'
+  | 'operating'
+  | 'officers'
+  | 'announcements';
 
 export default function AdminPanelPage() {
   const [tab, setTab] = useState<Tab>('queues');
@@ -18,6 +28,8 @@ export default function AdminPanelPage() {
     { key: 'guests', label: 'Data Tamu', icon: 'G' },
     { key: 'reports', label: 'Laporan', icon: 'L' },
     { key: 'operating', label: 'Jam Operasional', icon: 'J' },
+    { key: 'officers', label: 'Petugas', icon: 'P' },
+    { key: 'announcements', label: 'Agenda', icon: '📢' },
   ];
 
   return (
@@ -27,7 +39,7 @@ export default function AdminPanelPage() {
           Admin Panel
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 no-print">
-          Kelola antrean, kunjungan, serah terima, data tamu, laporan, dan jam operasional
+          Kelola antrean, kunjungan, serah terima, data tamu, laporan, jam operasional, petugas, dan agenda
         </p>
       </div>
 
@@ -55,6 +67,8 @@ export default function AdminPanelPage() {
       {tab === 'guests' && <AdminGuests />}
       {tab === 'reports' && <AdminReports />}
       {tab === 'operating' && <AdminOperating />}
+      {tab === 'officers' && <AdminOfficers />}
+      {tab === 'announcements' && <AdminAnnouncements />}
     </div>
   );
 }

@@ -18,6 +18,8 @@ import { handoverRoutes } from './modules/handovers/handover.routes.js';
 import { reportsRoutes } from './modules/reports/reports.routes.js';
 import { publicRoutes } from './modules/public/public.routes.js';
 import { operatingRoutes } from './modules/operating/operating.routes.js';
+import { officerRoutes } from './modules/officers/officers.routes.js';
+import { announcementRoutes } from './modules/announcements/announcements.routes.js';
 
 const app = Fastify({
   logger: {
@@ -53,6 +55,8 @@ await app.register(handoverRoutes, { prefix: '/api/handovers' });
 await app.register(reportsRoutes, { prefix: '/api/reports' });
 await app.register(publicRoutes, { prefix: '/api/public' });
 await app.register(operatingRoutes, { prefix: '/api/operating' });
+await app.register(officerRoutes, { prefix: '/api/officers' });
+await app.register(announcementRoutes, { prefix: '/api/announcements' });
 
 app.setErrorHandler((error, _req, reply) => {
   app.log.error(error);

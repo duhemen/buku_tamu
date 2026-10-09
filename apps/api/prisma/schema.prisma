@@ -276,3 +276,73 @@ model Setting {
   key   String @id
   value Json
 }
+// ============================================================
+// Officers & Daily Status
+// ============================================================
+enum OfficerStatusType {
+  AVAILABLE  // Tersedia
+  BUSY       // Sibuk/rapat
+  ABSENT     // Tidak ada/dinas luar
+  OFFLINE    // Di luar jam kerja
+}
+
+model Officer {
+  id         String   @id @default(cuid())
+  name       String
+  position   String   // Jabatan: "Kabalai", "Kasubbagtu", "PPK", "POKJA SDA"
+  unit       String?  // Unit/kelompok: "Pimpinan", "PPK", "Pokja", "Tim Teknis"
+  room       String?  // Ruang/lokasi: "Ruang Kabalai, Lt 2"
+  phone      String?  // Kontak internal
+  order      Int      @default(0)  // Urutan tampil
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  dailyStatuses OfficerDailyStatus[]
+
+  @@index([active, order])
+  @@map("officers")
+}
+
+model OfficerDailyStatus {
+  id          String            @id @default(cuid())
+  officerId   String
+  date        DateTime          @db.Date
+  status      OfficerStatusType
+  note        String?           // Catatan: "Rapat di Aula"
+  returnAt    String?           // Kapan kembali: "13:30" atau "Besok, 08:00"
+  confirmedBy String?           // User yang konfirmasi
+  confirmedAt DateTime          @default(now())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  officer Officer @relation(fields: [officerId], references: [id], onDelete: Cascade)
+
+  @@unique([officerId, date])
+  @@index([date])
+  @@map("officer_daily_statuses")
+}
+
+// ============================================================
+// Announcements (Agenda/Pengumuman)
+// ============================================================
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  category    String?   // "LELANG", "PEMBUKTIAN", "RAPAT", "PENGUMUMAN"
+  referenceNo String?   // Nomor surat: "SDA012026"
+  location    String?   // Lokasi: "Lobby Lt 1"
+  startDate   DateTime  @db.Date
+  endDate     DateTime? @db.Date
+  startTime   String?   // "08:00"
+  endTime     String?   // "16:30"
+  priority    Int       @default(0)  // Yang tinggi di atas
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isActive, startDate, endDate])
+  @@index([priority])
+  @@map("announcements")
+}
